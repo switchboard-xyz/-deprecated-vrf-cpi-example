@@ -3,7 +3,7 @@ pub use actions::*;
 
 use anchor_lang::prelude::*;
 
-declare_id!("9GcMfvDapsKyaoDAf83Gzu41R9ca9qho5b9WPR7VubVJ");
+declare_id!("BefxH4y8hNqKtS2ubJ6Vu3H3oNh7BA9mk6z1gQrm1QAg");
 
 const MAX_RESULT: u64 = u64::MAX;
 

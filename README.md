@@ -115,6 +115,10 @@ OPTIONS
 
 EXAMPLE
   $ ts-node src request EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
+
+USAGE NOTE
+  If the network is under high load, the oracle crank turning transactions may fail to submit, in which case you can manually turn the crank by calling verify yourself:
+https://switchboard-xyz.github.io/switchboardv2-api/classes/vrfaccount.html#verify
 ```
 
 [src/actions/request.ts](./src/actions/request.ts)

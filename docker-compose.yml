@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   oracle:
-    image: "switchboardlabs/node:dev-v2-2-14-22a"
+    image: "switchboardlabs/node:dev-v2-2-14-22b"
     network_mode: host
     restart: always
     secrets:
@@ -11,7 +11,7 @@ services:
       - CLUSTER=devnet
       - HEARTBEAT_INTERVAL=15 # Seconds
       - ORACLE_KEY=${ORACLE_KEY}
-      # - RPC_URL=<YOUR CUSTOM SOLANA RPC ENTRYPOINT> # OPTIONAL
+      - RPC_URL=https://switchboard.devnet.rpcpool.com/f9fe774d81ba4527a418f5b19477
 secrets:
   PAYER_SECRETS:
     file: ${PAYER_KEYPAIR}
