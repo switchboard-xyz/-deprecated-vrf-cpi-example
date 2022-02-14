@@ -1,0 +1,22 @@
+[package]
+name = "anchor-vrf-example"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "anchor_vrf_example"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.19.0"
+solana-program = "1.8.14"
+switchboard-v2 = "0.1.2"
+bytemuck = "1.7.2"

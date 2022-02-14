@@ -1,0 +1,14 @@
+[programs.localnet]
+anchor_vrf_example = "9GcMfvDapsKyaoDAf83Gzu41R9ca9qho5b9WPR7VubVJ"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[provider]
+# cluster = "localnet"
+# wallet = "/Users/<USER>/.config/solana/id.json"
+cluster = "devnet"
+wallet = "secrets/payer-keypair.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

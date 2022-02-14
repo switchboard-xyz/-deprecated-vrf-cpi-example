@@ -1,0 +1,97 @@
+import * as anchor from "@project-serum/anchor";
+import {
+  OracleAccount,
+  OracleQueueAccount,
+  PermissionAccount,
+  ProgramStateAccount,
+  SwitchboardPermission,
+} from "@switchboard-xyz/switchboard-v2";
+import chalk from "chalk";
+import fs from "node:fs";
+import path from "node:path";
+import {
+  loadKeypair,
+  loadSwitchboardProgram,
+  toAccountString,
+  toPermissionString,
+} from "../utils";
+
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export async function setupOracleQueue(argv: any): Promise<void> {
+  const { payer } = argv;
+  const payerKeypair = loadKeypair(payer);
+  const program: anchor.Program = await loadSwitchboardProgram(payerKeypair);
+
+  console.log(chalk.yellow("######## Switchboard Setup ########"));
+
+  // Program State Account and token mint for payout rewards
+  const [programStateAccount] = ProgramStateAccount.fromSeed(program);
+  // console.log(toAccountString("Program State", programStateAccount.publicKey));
+  const switchTokenMint = await programStateAccount.getTokenMint();
+  const tokenAccount = await switchTokenMint.createAccount(
+    payerKeypair.publicKey
+  );
+
+  // Oracle Queue
+  const queueAccount = await OracleQueueAccount.create(program, {
+    name: Buffer.from("Queue-1"),
+    slashingEnabled: false,
+    reward: new anchor.BN(0), // no token account needed
+    minStake: new anchor.BN(0),
+    authority: payerKeypair.publicKey,
+  });
+  console.log(toAccountString("Oracle Queue", queueAccount.publicKey));
+
+  // Oracle
+  const oracleAccount = await OracleAccount.create(program, {
+    name: Buffer.from("Oracle"),
+    queueAccount,
+  });
+  console.log(toAccountString("Oracle", oracleAccount.publicKey));
+  const oraclePermission = await PermissionAccount.create(program, {
+    authority: payerKeypair.publicKey,
+    granter: queueAccount.publicKey,
+    grantee: oracleAccount.publicKey,
+  });
+  await oraclePermission.set({
+    authority: payerKeypair,
+    permission: SwitchboardPermission.PERMIT_ORACLE_HEARTBEAT,
+    enable: true,
+  });
+  console.log(toAccountString(`  Permission`, oraclePermission.publicKey));
+  await oracleAccount.heartbeat();
+
+  console.log(chalk.green("\u2714 Switchboard setup complete"));
+
+  // Run the oracle
+  console.log(chalk.yellow("######## Start the Oracle ########"));
+  console.log(chalk.blue("Run the following command in a new shell\r\n"));
+  console.log(
+    `
+    ORACLE_KEY="${oracleAccount.publicKey}" PAYER_KEYPAIR="${payer}" docker-compose up
+    `
+  );
+  const permission = await oraclePermission.loadData();
+
+  const outFile = path.join(
+    process.cwd(),
+    `queue_${queueAccount.publicKey}.json`
+  );
+  fs.writeFileSync(
+    outFile,
+    JSON.stringify(
+      {
+        queue: queueAccount.publicKey.toString(),
+        queueAuthority: payerKeypair.publicKey.toString(),
+        oracle: {
+          publicKey: oracleAccount.publicKey.toString(),
+          oracleAuthority: payerKeypair.publicKey.toString(),
+          permissionPubkey: oraclePermission.publicKey.toString(),
+          permissions: toPermissionString(permission.permissions),
+        },
+      },
+      undefined,
+      2
+    )
+  );
+}

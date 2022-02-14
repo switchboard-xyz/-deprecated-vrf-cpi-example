@@ -1,0 +1,40 @@
+{
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "ES2021",
+      "strict": true,
+      "noImplicitAny": false,
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "resolveJsonModule": true,
+      "allowSyntheticDefaultImports": true,
+      "skipLibCheck": true
+      // "rootDir": "src"
+    }
+  },
+  "compilerOptions": {
+    "declaration": true,
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "target": "ES2021",
+    "esModuleInterop": true,
+    "allowJs": false,
+    "checkJs": false,
+    "sourceMap": true,
+    "outDir": "bin",
+    "strict": true,
+    "noEmitOnError": true,
+    "isolatedModules": true,
+    "noImplicitAny": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "types": ["mocha", "chai"],
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true
+    // "rootDir": "src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules/**/", "bin", "migrations"]
+}
