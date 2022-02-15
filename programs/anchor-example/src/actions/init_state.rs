@@ -12,7 +12,6 @@ pub struct InitState<'info> {
             vrf_account.key().as_ref(), 
             authority.key().as_ref()
         ],
-        bump = params.state_bump,
         payer = payer
     )]
     pub state: AccountLoader<'info, VrfState>,
