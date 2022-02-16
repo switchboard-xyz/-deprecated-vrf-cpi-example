@@ -6,6 +6,7 @@ import yargs from "yargs/yargs";
 import {
   createVrfAccount,
   requestRandomness,
+  RequestRandomnessCPI,
   Sandbox,
   setupOracleQueue,
   testCallback,
@@ -97,8 +98,8 @@ async function main(): Promise<void> {
       watchAccount
     )
     .command(
-      `sandbox [vrfKey]`,
-      "Sandbox",
+      `cpi [vrfKey]`,
+      "Request randomness with a CPI call",
       (yarg) => {
         yarg.positional("vrfKey", {
           type: "string",
@@ -106,8 +107,9 @@ async function main(): Promise<void> {
           demand: false,
         });
       },
-      Sandbox
+      RequestRandomnessCPI
     )
+    .command(`sandbox`, "Sandbox", (yarg) => {}, Sandbox)
     .options({
       payer: {
         type: "string",
