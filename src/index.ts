@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { clusterApiUrl } from "@solana/web3.js";
 import dotenv from "dotenv";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
@@ -113,6 +114,12 @@ async function main(): Promise<void> {
         describe: "filesystem path of keypair",
         demand: true,
         default: "secrets/payer-keypair.json",
+      },
+      rpcUrl: {
+        type: "string",
+        describe: "override default RPC server",
+        demand: true,
+        default: clusterApiUrl("devnet"),
       },
     })
     .example("$0 setup", "test")
