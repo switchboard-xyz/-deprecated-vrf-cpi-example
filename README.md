@@ -36,6 +36,7 @@ anchor deploy
 - [Setup Oracle Network](#Setup-Oracle-Network)
 - [Create Accounts](#Create-Accounts)
 - [Request Randomness](#Request-Randomness)
+- [CPI - Request Randomness](#CPI-Request-Randomness)
 - [Manually Update State](#Manually-Update-State)
 - [Read State](#Read-State)
 - [Watch Account](#Watch-Account)
@@ -122,6 +123,30 @@ https://switchboard-xyz.github.io/switchboardv2-api/classes/vrfaccount.html#veri
 ```
 
 [src/actions/request.ts](./src/actions/request.ts)
+
+### CPI Request Randomness
+
+Use a CPI call in the example program to request a new random value.
+
+```
+USAGE
+  $ ts-node src cpi [VRFPUBKEY] --payer [PAYERKEYPAIR]
+
+ARGUMENTS
+  VRFPUBKEY     publicKey of the Switchboard VRF Account to request a new randomness value for
+
+OPTIONS
+  --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
+
+EXAMPLE
+  $ ts-node src request EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
+
+USAGE NOTE
+  If the network is under high load, the oracle crank turning transactions may fail to submit, in which case you can manually turn the crank by calling verify yourself:
+https://switchboard-xyz.github.io/switchboardv2-api/classes/vrfaccount.html#verify
+```
+
+[src/actions/cpi.ts](./src/actions/cpi.ts)
 
 ### Manually Update State
 
