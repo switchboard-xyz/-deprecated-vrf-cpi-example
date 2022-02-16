@@ -38,7 +38,6 @@ anchor deploy
 - [Request Randomness](#Request-Randomness)
 - [CPI - Request Randomness](#CPI-Request-Randomness)
 - [Manually Update State](#Manually-Update-State)
-- [Read State](#Read-State)
 - [Watch Account](#Watch-Account)
 
 **NOTE:** Each randomness request costs 0.1 wSOL. The following commands assume you use the same keypair, containing an active devnet Solana balance to pay for new accounts,
@@ -167,26 +166,6 @@ EXAMPLE
 ```
 
 [src/actions/update.ts](./src/actions/update.ts)
-
-### Read State
-
-Immutably read the example program state and check the expected result
-
-```
-USAGE
-  $ ts-node src read [STATEKEY] --payer [PAYERKEYPAIR]
-
-ARGUMENTS
-  STATEKEY      publicKey of the program state holding the vrf account
-
-OPTIONS
-  --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
-
-EXAMPLE
-  $ ts-node src read 7bbCPkxQScvnrw31xh4nASjvAsw6WdVc1LpNrRnpmFZW --payer secrets/payer-keypair.json
-```
-
-[src/actions/read.ts](./src/actions/read.ts)
 
 ### Watch Account
 
