@@ -39,6 +39,7 @@ anchor deploy
 - [CPI - Request Randomness](#CPI-Request-Randomness)
 - [Manually Update State](#Manually-Update-State)
 - [Watch Account](#Watch-Account)
+- [Benchmark](#Benchmark)
 
 **NOTE:** Each randomness request costs 0.1 wSOL. The following commands assume you use the same keypair, containing an active devnet Solana balance to pay for new accounts,
 
@@ -186,6 +187,25 @@ EXAMPLE
 ```
 
 [src/actions/watch.ts](./src/actions/watch.ts)
+
+### Benchmark
+
+Measure the latency between a VRF request and the value being accepted on-chain
+
+```
+USAGE
+  $ ts-node src benchmark [VRFPUBKEY] --payer [PAYERKEYPAIR]
+
+ARGUMENTS
+  VRFPUBKEY     publicKey of the Switchboard VRF Account to request a new randomness value for
+
+OPTIONS
+
+EXAMPLE
+  $ ts-node src benchmark EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH  --payer secrets/payer-keypair.json
+```
+
+[src/actions/benchmark.ts](./src/actions/benchmark.ts)
 
 ## Getting Help
 

@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import {
+  BenchmarkRpc,
   createVrfAccount,
   requestRandomness,
   RequestRandomnessCPI,
@@ -108,6 +109,18 @@ async function main(): Promise<void> {
         });
       },
       RequestRandomnessCPI
+    )
+    .command(
+      `benchmark [vrfKey]`,
+      "Measure the latency between a request randomness instruction and the returned result",
+      (yarg) => {
+        yarg.positional("vrfKey", {
+          type: "string",
+          describe: "public key",
+          demand: false,
+        });
+      },
+      BenchmarkRpc
     )
     .command(`sandbox`, "Sandbox", (yarg) => {}, Sandbox)
     .options({

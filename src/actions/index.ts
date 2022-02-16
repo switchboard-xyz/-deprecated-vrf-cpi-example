@@ -1,3 +1,4 @@
+export * from "./benchmark";
 export * from "./cpi";
 export * from "./create";
 export * from "./request";
