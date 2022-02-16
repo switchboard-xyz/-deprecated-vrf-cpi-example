@@ -8,7 +8,6 @@ declare_id!("FL6C2gLaDqSgeKmVrL7E75rqJhdnn9bvFp7GiQmy1Yrn");
 const MAX_RESULT: u64 = u64::MAX;
 
 const STATE_SEED: &[u8] = b"STATE";
-const PERMISSION_SEED: &[u8] = b"PermissionAccountData";
 
 #[program]
 pub mod anchor_vrf_example {

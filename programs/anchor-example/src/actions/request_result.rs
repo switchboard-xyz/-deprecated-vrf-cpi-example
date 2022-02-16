@@ -1,8 +1,5 @@
-use crate::*;
 use anchor_lang::prelude::*;
-use solana_program::instruction::{AccountMeta, Instruction};
-use solana_program::program::invoke;
-pub use switchboard_v2::VrfAccountData;
+pub use switchboard_v2::{VrfAccountData, VrfRequestRandomness};
 
 #[derive(Accounts)]
 #[instruction(params: RequestResultParams)] // rpc parameters hint
@@ -43,48 +40,31 @@ impl RequestResult<'_> {
     }
 
     pub fn actuate(ctx: &Context<Self>, params: &RequestResultParams) -> ProgramResult {
-        let switchboard_program = ctx.accounts.switchboard_program.key.clone();
-        msg!("switchboard program {:?}", switchboard_program);
+        let switchboard_program = ctx.accounts.switchboard_program.to_account_info();
 
-        // let accounts = ctx.remaining_accounts.to_vec();
-        let accounts = [
-            ctx.accounts.authority.to_account_info().clone(),
-            ctx.accounts.vrf.to_account_info().clone(),
-            ctx.accounts.oracle_queue.to_account_info().clone(),
-            ctx.accounts.queue_authority.to_account_info().clone(),
-            ctx.accounts.data_buffer.to_account_info().clone(),
-            ctx.accounts.permission.to_account_info().clone(),
-            ctx.accounts.escrow.to_account_info().clone(),
-            ctx.accounts.payer_wallet.to_account_info().clone(),
-            ctx.accounts.payer_authority.to_account_info().clone(),
-            ctx.accounts.recent_blockhashes.to_account_info().clone(),
-            ctx.accounts.program_state.to_account_info().clone(),
-            ctx.accounts.token_program.to_account_info().clone(),
-        ];
-        // .retain(|&account| account.key != switchboard_program);
-        msg!("accounts len {:?}", accounts.len());
+        let vrf_request_randomness = VrfRequestRandomness {
+            authority: ctx.accounts.authority.to_account_info(),
+            vrf: ctx.accounts.vrf.to_account_info(),
+            oracle_queue: ctx.accounts.oracle_queue.to_account_info(),
+            queue_authority: ctx.accounts.queue_authority.to_account_info(),
+            data_buffer: ctx.accounts.data_buffer.to_account_info(),
+            permission: ctx.accounts.permission.to_account_info(),
+            escrow: ctx.accounts.escrow.to_account_info(),
+            payer_wallet: ctx.accounts.payer_wallet.to_account_info(),
+            payer_authority: ctx.accounts.payer_authority.to_account_info(),
+            recent_blockhashes: ctx.accounts.recent_blockhashes.to_account_info(),
+            program_state: ctx.accounts.program_state.to_account_info(),
+            token_program: ctx.accounts.token_program.to_account_info(),
+        };
 
-        let account_metas: Vec<AccountMeta> = accounts
-            .iter()
-            .map(|account_info| AccountMeta {
-                pubkey: account_info.key.clone(),
-                is_signer: account_info.is_signer,
-                is_writable: account_info.is_writable,
-            })
-            .collect();
-        msg!("account_metas len {:?}", account_metas.len());
+        msg!("requesting randomness");
+        vrf_request_randomness.request_randomness(
+            switchboard_program,
+            params.state_bump,
+            params.permission_bump,
+        )?;
 
-        let discriminator: [u8; 8] = [230, 121, 14, 164, 28, 222, 117, 118];
-        let mut data = discriminator.try_to_vec()?;
-        msg!("discriminator {:?}", discriminator);
-
-        let mut param_vec: Vec<u8> = params.try_to_vec()?;
-        data.append(&mut param_vec);
-        msg!("ixData {:?}", data);
-
-        let instruction = Instruction::new_with_bytes(switchboard_program, &data, account_metas);
-        invoke(&instruction, &accounts[..])?;
-
+        msg!("randomness requested successfully");
         Ok(())
     }
 }
