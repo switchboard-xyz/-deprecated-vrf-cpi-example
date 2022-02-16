@@ -11,7 +11,7 @@ import {
 
 type AccountType = "VrfAccountData" | "VrfState";
 
-const DEFAULT_KEYPAIR = Keypair.fromSeed(new Uint8Array(32).fill(1));
+export const DEFAULT_KEYPAIR = Keypair.fromSeed(new Uint8Array(32).fill(1));
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function watchAccount(argv: any): Promise<void> {

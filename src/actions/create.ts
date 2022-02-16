@@ -124,6 +124,30 @@ export async function createVrfAccount(argv: any): Promise<void> {
   const state = await stateAccount.loadData();
   const permission = await permissionAccount.loadData();
 
+  console.log(
+    `${chalk.blue(
+      "Run the following command to watch the Switchboard VrfAccount:"
+    )}\n\t${chalk.white("ts-node src watch", vrfAccount.publicKey.toString())}`
+  );
+  console.log(
+    `${chalk.blue(
+      "Run the following command to watch the example program:"
+    )}\n\t${chalk.white(
+      "ts-node src watch",
+      stateAccount.publicKey.toString()
+    )}`
+  );
+  console.log(
+    `${chalk.blue(
+      "Run the following command to request a new ranomness value:"
+    )}\n\t${chalk.white(
+      "ts-node src request",
+      vrfAccount.publicKey.toString(),
+      "--payer",
+      payer
+    )}`
+  );
+
   if (!keypair) {
     fs.writeFileSync(
       path.join(

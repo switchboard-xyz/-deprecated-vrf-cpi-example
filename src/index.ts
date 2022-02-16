@@ -5,6 +5,7 @@ import yargs from "yargs/yargs";
 import {
   createVrfAccount,
   requestRandomness,
+  Sandbox,
   setupOracleQueue,
   testCallback,
   updateProgram,
@@ -93,6 +94,18 @@ async function main(): Promise<void> {
         });
       },
       watchAccount
+    )
+    .command(
+      `sandbox [vrfKey]`,
+      "Sandbox",
+      (yarg) => {
+        yarg.positional("vrfKey", {
+          type: "string",
+          describe: "public key",
+          demand: false,
+        });
+      },
+      Sandbox
     )
     .options({
       payer: {

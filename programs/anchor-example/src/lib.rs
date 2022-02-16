@@ -3,11 +3,12 @@ pub use actions::*;
 
 use anchor_lang::prelude::*;
 
-declare_id!("BefxH4y8hNqKtS2ubJ6Vu3H3oNh7BA9mk6z1gQrm1QAg");
+declare_id!("FL6C2gLaDqSgeKmVrL7E75rqJhdnn9bvFp7GiQmy1Yrn");
 
 const MAX_RESULT: u64 = u64::MAX;
 
 const STATE_SEED: &[u8] = b"STATE";
+const PERMISSION_SEED: &[u8] = b"PermissionAccountData";
 
 #[program]
 pub mod anchor_vrf_example {
@@ -21,6 +22,14 @@ pub mod anchor_vrf_example {
     #[access_control(ctx.accounts.validate(&ctx, &params))]
     pub fn update_result(ctx: Context<UpdateResult>, params: UpdateResultParams) -> ProgramResult {
         UpdateResult::actuate(&ctx, &params)
+    }
+
+    #[access_control(ctx.accounts.validate(&ctx, &params))]
+    pub fn request_result(
+        ctx: Context<RequestResult>,
+        params: RequestResultParams,
+    ) -> ProgramResult {
+        RequestResult::actuate(&ctx, &params)
     }
 }
 
@@ -47,4 +56,6 @@ pub enum ErrorCode {
     MaxResultExceedsMaximum,
     #[msg("Current round result is empty")]
     EmptyCurrentRoundResult,
+    #[msg("Invalid authority account provided.")]
+    InvalidAuthorityError,
 }
