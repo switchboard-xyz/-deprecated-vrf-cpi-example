@@ -69,6 +69,8 @@ ARGUMENTS
 
 OPTIONS
   --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
 
 EXAMPLE
   $ ts-node src setup --payer secrets/payer-keypair.json
@@ -91,11 +93,13 @@ ARGUMENTS
 
 OPTIONS
   --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
-
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
   --maxResult   the maximum result stored by the example program state (max: u64::max = 18446744073709551615)
 
 EXAMPLE
-  $ ts-node src request EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
+  $ ts-node src create EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
+  $ ts-node src create EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --maxGuess 123456789
 ```
 
 [src/actions/create.ts](./src/actions/create.ts)
@@ -113,6 +117,8 @@ ARGUMENTS
 
 OPTIONS
   --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
 
 EXAMPLE
   $ ts-node src request EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
@@ -137,6 +143,8 @@ ARGUMENTS
 
 OPTIONS
   --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
 
 EXAMPLE
   $ ts-node src request EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
@@ -161,6 +169,8 @@ ARGUMENTS
 
 OPTIONS
   --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
 
 EXAMPLE
   $ ts-node src update 7bbCPkxQScvnrw31xh4nASjvAsw6WdVc1LpNrRnpmFZW --payer secrets/payer-keypair.json
@@ -180,7 +190,8 @@ ARGUMENTS
   STATEKEY      publicKey of a Switchboard VRF Account or the example program's state
 
 OPTIONS
-
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
 
 EXAMPLE
   $ ts-node src watch 7bbCPkxQScvnrw31xh4nASjvAsw6WdVc1LpNrRnpmFZW
@@ -200,6 +211,9 @@ ARGUMENTS
   VRFPUBKEY     publicKey of the Switchboard VRF Account to request a new randomness value for
 
 OPTIONS
+  --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
 
 EXAMPLE
   $ ts-node src benchmark EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH  --payer secrets/payer-keypair.json
