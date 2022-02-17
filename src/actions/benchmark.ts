@@ -12,16 +12,15 @@ import {
   waitForever,
 } from "../utils";
 
-const EMPTY_VRF = [
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0,
-];
-
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function BenchmarkRpc(argv: any): Promise<void> {
-  const { payer, vrfKey } = argv;
+  const { payer, cluster, rpcUrl, vrfKey } = argv;
   const payerKeypair = loadKeypair(payer);
-  const program: anchor.Program = await loadSwitchboardProgram(payerKeypair);
+  const program: anchor.Program = await loadSwitchboardProgram(
+    payerKeypair,
+    cluster,
+    rpcUrl
+  );
 
   const [programStateAccount] = ProgramStateAccount.fromSeed(program);
   const switchTokenMint = await programStateAccount.getTokenMint();

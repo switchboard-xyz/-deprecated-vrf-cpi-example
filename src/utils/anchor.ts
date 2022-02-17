@@ -1,9 +1,9 @@
 /* eslint-disable unicorn/prefer-module */
 import * as anchor from "@project-serum/anchor";
-import { clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js";
-import { SBV2_DEVNET_PID } from "@switchboard-xyz/switchboard-v2";
+import { Cluster, Connection, Keypair, PublicKey } from "@solana/web3.js";
 import fs from "node:fs";
 import path from "node:path";
+import { getSwitchboardPid } from "./switchboard";
 
 // VRF Example program keypair
 const PROGRAM_KEYPAIR_PATH = path.join(
@@ -22,9 +22,12 @@ const PROGRAM_IDL_PATH = path.join(
  * and interact with Switchboard V2 accounts.
  */
 export async function loadSwitchboardProgram(
-  payer: Keypair
+  payer: Keypair,
+  cluster: Cluster,
+  rpcUrl: string
 ): Promise<anchor.Program> {
-  const connection = new Connection(clusterApiUrl("devnet"), {
+  const programId = getSwitchboardPid(cluster);
+  const connection = new Connection(rpcUrl, {
     commitment: "confirmed",
   });
   const wallet = new anchor.Wallet(payer);
@@ -33,12 +36,12 @@ export async function loadSwitchboardProgram(
     preflightCommitment: "processed",
   });
 
-  const anchorIdl = await anchor.Program.fetchIdl(SBV2_DEVNET_PID, provider);
+  const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
   if (!anchorIdl) {
-    throw new Error(`failed to read idl for ${SBV2_DEVNET_PID}`);
+    throw new Error(`failed to read idl for ${programId}`);
   }
 
-  return new anchor.Program(anchorIdl, SBV2_DEVNET_PID, provider);
+  return new anchor.Program(anchorIdl, programId, provider);
 }
 
 export function loadVrfExamplePid(): PublicKey {
@@ -55,8 +58,21 @@ export function loadVrfExamplePid(): PublicKey {
  * Load the local VRF anchor program which reads
  * a VRF account and logs its current randomness value.
  */
-export function loadVrfExampleProgram(payer: Keypair): anchor.Program {
+export async function loadVrfExampleProgram(
+  payer: Keypair,
+  cluster: Cluster, // should verify example has been deployed
+  rpcUrl: string
+): Promise<anchor.Program> {
   const programId = loadVrfExamplePid();
+  const connection = new Connection(rpcUrl, {
+    commitment: "confirmed",
+  });
+  const program = await connection.getAccountInfo(programId);
+  if (!program) {
+    throw new Error(
+      `failed to find example program for cluster ${cluster}. did you run 'anchor build && anchor deploy' with the Anchor.toml pointed to cluster ${cluster}`
+    );
+  }
 
   // load anchor program from local IDL file
   if (!fs.existsSync(PROGRAM_IDL_PATH)) {
@@ -65,9 +81,7 @@ export function loadVrfExampleProgram(payer: Keypair): anchor.Program {
   const idl: anchor.Idl = JSON.parse(
     fs.readFileSync(PROGRAM_IDL_PATH, "utf-8")
   );
-  const connection = new Connection(clusterApiUrl("devnet"), {
-    commitment: "confirmed",
-  });
+
   const wallet = new anchor.Wallet(payer);
   const provider = new anchor.Provider(connection, wallet, {
     commitment: "confirmed",

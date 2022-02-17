@@ -11,7 +11,7 @@ services:
       - CLUSTER=devnet
       - HEARTBEAT_INTERVAL=15 # Seconds
       - ORACLE_KEY=${ORACLE_KEY}
-      - RPC_URL=https://api.devnet.solana.com
+      - RPC_URL=https://switchboard.devnet.rpcpool.com/f9fe774d81ba4527a418f5b19477
 secrets:
   PAYER_SECRETS:
     file: ${PAYER_KEYPAIR}

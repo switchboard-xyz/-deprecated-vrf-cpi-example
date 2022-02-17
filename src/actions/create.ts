@@ -22,10 +22,10 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function createVrfAccount(argv: any): Promise<void> {
-  const { payer, queueKey, keypair, maxResult } = argv;
+  const { payer, cluster, rpcUrl, queueKey, keypair, maxResult } = argv;
   const max = new anchor.BN(maxResult);
   const payerKeypair = loadKeypair(payer);
-  const program = await loadSwitchboardProgram(payerKeypair);
+  const program = await loadSwitchboardProgram(payerKeypair, cluster, rpcUrl);
 
   const vrfSecret = keypair
     ? loadKeypair(keypair)
@@ -33,7 +33,11 @@ export async function createVrfAccount(argv: any): Promise<void> {
 
   // create state account but dont send instruction
   // need public key for VRF CPI
-  const vrfExampleProgram = loadVrfExampleProgram(payerKeypair);
+  const vrfExampleProgram = await loadVrfExampleProgram(
+    payerKeypair,
+    cluster,
+    rpcUrl
+  );
   const [stateAccount, stateBump] = VrfState.fromSeed(
     vrfExampleProgram,
     vrfSecret.publicKey,

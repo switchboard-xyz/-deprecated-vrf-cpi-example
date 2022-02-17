@@ -18,9 +18,13 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function setupOracleQueue(argv: any): Promise<void> {
-  const { payer } = argv;
+  const { payer, cluster, rpcUrl } = argv;
   const payerKeypair = loadKeypair(payer);
-  const program: anchor.Program = await loadSwitchboardProgram(payerKeypair);
+  const program: anchor.Program = await loadSwitchboardProgram(
+    payerKeypair,
+    cluster,
+    rpcUrl
+  );
 
   console.log(chalk.yellow("######## Switchboard Setup ########"));
 

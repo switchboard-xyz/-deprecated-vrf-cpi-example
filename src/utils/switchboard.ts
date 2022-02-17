@@ -1,4 +1,9 @@
-import { SwitchboardPermissionValue } from "@switchboard-xyz/switchboard-v2";
+import { Cluster, PublicKey } from "@solana/web3.js";
+import {
+  SBV2_DEVNET_PID,
+  SBV2_MAINNET_PID,
+  SwitchboardPermissionValue,
+} from "@switchboard-xyz/switchboard-v2";
 
 export const toPermissionString = (
   permission: SwitchboardPermissionValue
@@ -13,4 +18,11 @@ export const toPermissionString = (
     default:
       return "NONE";
   }
+};
+
+export const getSwitchboardPid = (cluster: Cluster): PublicKey => {
+  if (cluster === "mainnet-beta") {
+    return SBV2_MAINNET_PID;
+  }
+  return SBV2_DEVNET_PID;
 };

@@ -14,12 +14,16 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function RequestRandomnessCPI(argv: any): Promise<void> {
-  const { payer, vrfKey } = argv;
+  const { payer, cluster, rpcUrl, vrfKey } = argv;
   const vrfPubkey = new PublicKey(vrfKey);
 
   const payerKeypair = loadKeypair(payer);
-  const exampleProgram = loadVrfExampleProgram(payerKeypair);
-  const program = await loadSwitchboardProgram(payerKeypair);
+  const exampleProgram = await loadVrfExampleProgram(
+    payerKeypair,
+    cluster,
+    rpcUrl
+  );
+  const program = await loadSwitchboardProgram(payerKeypair, cluster, rpcUrl);
 
   const vrfAccount = new VrfAccount({
     program,
@@ -84,5 +88,5 @@ export async function RequestRandomnessCPI(argv: any): Promise<void> {
       signers: [payerKeypair, payerKeypair],
     }
   );
-  console.log(`https://solscan.io/tx/${requestTxn}?cluster=devnet`);
+  console.log(`https://solscan.io/tx/${requestTxn}?cluster=${cluster}`);
 }

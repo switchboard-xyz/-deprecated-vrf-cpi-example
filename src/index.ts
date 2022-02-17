@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-import { clusterApiUrl } from "@solana/web3.js";
-import dotenv from "dotenv";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import {
@@ -14,8 +12,7 @@ import {
   updateProgram,
   watchAccount,
 } from "./actions";
-
-dotenv.config();
+import { DEFAULT_CLUSTER, DEFAULT_RPC_URL } from "./const";
 
 async function main(): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -134,7 +131,13 @@ async function main(): Promise<void> {
         type: "string",
         describe: "override default RPC server",
         demand: true,
-        default: clusterApiUrl("devnet"),
+        default: DEFAULT_RPC_URL,
+      },
+      cluster: {
+        type: "string",
+        describe: "Solana cluster to interact with",
+        demand: true,
+        default: DEFAULT_CLUSTER,
       },
     })
     .example("$0 setup", "test")

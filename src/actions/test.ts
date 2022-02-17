@@ -4,9 +4,9 @@ import { loadKeypair, loadSwitchboardProgram } from "../utils";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function testCallback(argv: any): Promise<void> {
-  const { payer, vrfKey, oracleKey } = argv;
+  const { payer, cluster, rpcUrl, vrfKey, oracleKey } = argv;
   const payerKeypair = loadKeypair(payer);
-  const program = await loadSwitchboardProgram(payerKeypair);
+  const program = await loadSwitchboardProgram(payerKeypair, cluster, rpcUrl);
 
   const oracleAccount = new OracleAccount({
     program,
