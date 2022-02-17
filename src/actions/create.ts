@@ -131,14 +131,25 @@ export async function createVrfAccount(argv: any): Promise<void> {
   console.log(
     `${chalk.blue(
       "Run the following command to watch the Switchboard VrfAccount:"
-    )}\n\t${chalk.white("ts-node src watch", vrfAccount.publicKey.toString())}`
+    )}\n\t${chalk.white(
+      "ts-node src watch",
+      vrfAccount.publicKey.toString(),
+      "--rpcUrl",
+      rpcUrl,
+      "--cluster",
+      cluster
+    )}`
   );
   console.log(
     `${chalk.blue(
       "Run the following command to watch the example program:"
     )}\n\t${chalk.white(
       "ts-node src watch",
-      stateAccount.publicKey.toString()
+      stateAccount.publicKey.toString(),
+      "--rpcUrl",
+      rpcUrl,
+      "--cluster",
+      cluster
     )}`
   );
   console.log(
@@ -148,7 +159,11 @@ export async function createVrfAccount(argv: any): Promise<void> {
       "ts-node src request",
       vrfAccount.publicKey.toString(),
       "--payer",
-      payer
+      payer,
+      "--rpcUrl",
+      rpcUrl,
+      "--cluster",
+      cluster
     )}`
   );
 
