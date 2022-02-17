@@ -22,10 +22,10 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function createVrfAccount(argv: any): Promise<void> {
-  const { payer, queueKey, keypair, maxResult } = argv;
+  const { payer, cluster, rpcUrl, queueKey, keypair, maxResult } = argv;
   const max = new anchor.BN(maxResult);
   const payerKeypair = loadKeypair(payer);
-  const program = await loadSwitchboardProgram(payerKeypair);
+  const program = await loadSwitchboardProgram(payerKeypair, cluster, rpcUrl);
 
   const vrfSecret = keypair
     ? loadKeypair(keypair)
@@ -33,7 +33,11 @@ export async function createVrfAccount(argv: any): Promise<void> {
 
   // create state account but dont send instruction
   // need public key for VRF CPI
-  const vrfExampleProgram = loadVrfExampleProgram(payerKeypair);
+  const vrfExampleProgram = await loadVrfExampleProgram(
+    payerKeypair,
+    cluster,
+    rpcUrl
+  );
   const [stateAccount, stateBump] = VrfState.fromSeed(
     vrfExampleProgram,
     vrfSecret.publicKey,
@@ -123,6 +127,45 @@ export async function createVrfAccount(argv: any): Promise<void> {
   console.log(toAccountString("Program State", stateAccount.publicKey));
   const state = await stateAccount.loadData();
   const permission = await permissionAccount.loadData();
+
+  console.log(
+    `${chalk.blue(
+      "Run the following command to watch the Switchboard VrfAccount:"
+    )}\n\t${chalk.white(
+      "ts-node src watch",
+      vrfAccount.publicKey.toString(),
+      "--rpcUrl",
+      rpcUrl,
+      "--cluster",
+      cluster
+    )}`
+  );
+  console.log(
+    `${chalk.blue(
+      "Run the following command to watch the example program:"
+    )}\n\t${chalk.white(
+      "ts-node src watch",
+      stateAccount.publicKey.toString(),
+      "--rpcUrl",
+      rpcUrl,
+      "--cluster",
+      cluster
+    )}`
+  );
+  console.log(
+    `${chalk.blue(
+      "Run the following command to request a new ranomness value:"
+    )}\n\t${chalk.white(
+      "ts-node src request",
+      vrfAccount.publicKey.toString(),
+      "--payer",
+      payer,
+      "--rpcUrl",
+      rpcUrl,
+      "--cluster",
+      cluster
+    )}`
+  );
 
   if (!keypair) {
     fs.writeFileSync(

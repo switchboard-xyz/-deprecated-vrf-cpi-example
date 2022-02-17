@@ -1,5 +1,5 @@
 [programs.localnet]
-anchor_vrf_example = "9GcMfvDapsKyaoDAf83Gzu41R9ca9qho5b9WPR7VubVJ"
+anchor_vrf_example = "FL6C2gLaDqSgeKmVrL7E75rqJhdnn9bvFp7GiQmy1Yrn"
 
 [registry]
 url = "https://anchor.projectserum.com"
@@ -7,7 +7,7 @@ url = "https://anchor.projectserum.com"
 [provider]
 # cluster = "localnet"
 # wallet = "/Users/<USER>/.config/solana/id.json"
-cluster = "mainnet"
+cluster = "devnet"
 wallet = "secrets/payer-keypair.json"
 
 [scripts]

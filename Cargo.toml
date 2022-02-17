@@ -2,4 +2,3 @@
 members = [
     "programs/*"
 ]
-exclude = ["programs/solana-program"]

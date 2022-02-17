@@ -6,10 +6,14 @@ dotenv.config();
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function updateProgram(argv: any): Promise<void> {
-  const { payer, stateKey } = argv;
+  const { payer, cluster, rpcUrl, stateKey } = argv;
   const payerKeypair = loadKeypair(payer);
   const statePubkey = new PublicKey(stateKey);
-  const exampleProgram = loadVrfExampleProgram(payerKeypair);
+  const exampleProgram = await loadVrfExampleProgram(
+    payerKeypair,
+    cluster,
+    rpcUrl
+  );
 
   const state = new VrfState(exampleProgram, statePubkey);
   const stateData = await state.loadData();
@@ -25,7 +29,7 @@ export async function updateProgram(argv: any): Promise<void> {
     }
   );
 
-  console.log(`https://explorer.solana.com/tx/${signature}?cluster=devnet`);
+  console.log(`https://explorer.solana.com/tx/${signature}?cluster=${cluster}`);
   const confirmedTxn = await exampleProgram.provider.connection.getTransaction(
     signature
   );

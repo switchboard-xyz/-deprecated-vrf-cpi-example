@@ -1,6 +1,7 @@
 import * as anchor from "@project-serum/anchor";
-import { AccountInfo, Context, Keypair, PublicKey } from "@solana/web3.js";
+import { AccountInfo, Context, PublicKey } from "@solana/web3.js";
 import { VrfAccount } from "@switchboard-xyz/switchboard-v2";
+import { DEFAULT_KEYPAIR } from "../const";
 import { VrfState } from "../types";
 import {
   anchorBNtoDateTimeString,
@@ -11,22 +12,20 @@ import {
 
 type AccountType = "VrfAccountData" | "VrfState";
 
-const DEFAULT_KEYPAIR = Keypair.fromSeed(new Uint8Array(32).fill(1));
-
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function watchAccount(argv: any): Promise<void> {
-  const { pubkey } = argv;
+  const { cluster, rpcUrl, pubkey } = argv;
   const publicKey = new PublicKey(pubkey);
   let program: anchor.Program;
   let accountType: AccountType;
   try {
-    program = await loadSwitchboardProgram(DEFAULT_KEYPAIR);
+    program = await loadSwitchboardProgram(DEFAULT_KEYPAIR, cluster, rpcUrl);
     const vrfAccount = new VrfAccount({ program, publicKey });
     await vrfAccount.loadData();
     accountType = "VrfAccountData";
   } catch {
     try {
-      program = loadVrfExampleProgram(DEFAULT_KEYPAIR);
+      program = await loadVrfExampleProgram(DEFAULT_KEYPAIR, cluster, rpcUrl);
       const account = new VrfState(program, publicKey);
       await account.loadData();
       accountType = "VrfState";

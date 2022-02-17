@@ -18,9 +18,13 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function setupOracleQueue(argv: any): Promise<void> {
-  const { payer } = argv;
+  const { payer, cluster, rpcUrl } = argv;
   const payerKeypair = loadKeypair(payer);
-  const program: anchor.Program = await loadSwitchboardProgram(payerKeypair);
+  const program: anchor.Program = await loadSwitchboardProgram(
+    payerKeypair,
+    cluster,
+    rpcUrl
+  );
 
   console.log(chalk.yellow("######## Switchboard Setup ########"));
 
@@ -39,6 +43,7 @@ export async function setupOracleQueue(argv: any): Promise<void> {
     reward: new anchor.BN(0), // no token account needed
     minStake: new anchor.BN(0),
     authority: payerKeypair.publicKey,
+    queueSize: 50,
   });
   console.log(toAccountString("Oracle Queue", queueAccount.publicKey));
 
@@ -64,13 +69,14 @@ export async function setupOracleQueue(argv: any): Promise<void> {
   console.log(chalk.green("\u2714 Switchboard setup complete"));
 
   // Run the oracle
-  console.log(chalk.yellow("######## Start the Oracle ########"));
-  console.log(chalk.blue("Run the following command in a new shell\r\n"));
   console.log(
-    `
-    ORACLE_KEY="${oracleAccount.publicKey}" PAYER_KEYPAIR="${payer}" docker-compose up
-    `
+    `${chalk.blue(
+      "Run the following command to start the oracle:"
+    )}\n\tORACLE_KEY="${
+      oracleAccount.publicKey
+    }" PAYER_KEYPAIR="${payer}" RPC_URL=${rpcUrl} CLUSTER=${cluster} docker-compose up`
   );
+
   const permission = await oraclePermission.loadData();
 
   const outFile = path.join(
@@ -93,5 +99,20 @@ export async function setupOracleQueue(argv: any): Promise<void> {
       undefined,
       2
     )
+  );
+
+  console.log(
+    `${chalk.blue(
+      "Run the following command to create a new VRF Account:"
+    )}\n\t${chalk.white(
+      "ts-node src create",
+      queueAccount.publicKey.toString(),
+      "--payer",
+      payer,
+      "--rpcUrl",
+      rpcUrl,
+      "--cluster",
+      cluster
+    )}`
   );
 }

@@ -36,9 +36,10 @@ anchor deploy
 - [Setup Oracle Network](#Setup-Oracle-Network)
 - [Create Accounts](#Create-Accounts)
 - [Request Randomness](#Request-Randomness)
+- [CPI - Request Randomness](#CPI-Request-Randomness)
 - [Manually Update State](#Manually-Update-State)
-- [Read State](#Read-State)
 - [Watch Account](#Watch-Account)
+- [Benchmark](#Benchmark)
 
 **NOTE:** Each randomness request costs 0.1 wSOL. The following commands assume you use the same keypair, containing an active devnet Solana balance to pay for new accounts,
 
@@ -68,6 +69,8 @@ ARGUMENTS
 
 OPTIONS
   --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
 
 EXAMPLE
   $ ts-node src setup --payer secrets/payer-keypair.json
@@ -90,11 +93,13 @@ ARGUMENTS
 
 OPTIONS
   --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
-
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
   --maxResult   the maximum result stored by the example program state (max: u64::max = 18446744073709551615)
 
 EXAMPLE
-  $ ts-node src request EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
+  $ ts-node src create EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
+  $ ts-node src create EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --maxGuess 123456789
 ```
 
 [src/actions/create.ts](./src/actions/create.ts)
@@ -112,6 +117,8 @@ ARGUMENTS
 
 OPTIONS
   --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
 
 EXAMPLE
   $ ts-node src request EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
@@ -122,6 +129,32 @@ https://switchboard-xyz.github.io/switchboardv2-api/classes/vrfaccount.html#veri
 ```
 
 [src/actions/request.ts](./src/actions/request.ts)
+
+### CPI Request Randomness
+
+Use a CPI call in the example program to request a new random value.
+
+```
+USAGE
+  $ ts-node src cpi [VRFPUBKEY] --payer [PAYERKEYPAIR]
+
+ARGUMENTS
+  VRFPUBKEY     publicKey of the Switchboard VRF Account to request a new randomness value for
+
+OPTIONS
+  --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
+
+EXAMPLE
+  $ ts-node src request EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
+
+USAGE NOTE
+  If the network is under high load, the oracle crank turning transactions may fail to submit, in which case you can manually turn the crank by calling verify yourself:
+https://switchboard-xyz.github.io/switchboardv2-api/classes/vrfaccount.html#verify
+```
+
+[src/actions/cpi.ts](./src/actions/cpi.ts)
 
 ### Manually Update State
 
@@ -136,32 +169,14 @@ ARGUMENTS
 
 OPTIONS
   --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
 
 EXAMPLE
   $ ts-node src update 7bbCPkxQScvnrw31xh4nASjvAsw6WdVc1LpNrRnpmFZW --payer secrets/payer-keypair.json
 ```
 
 [src/actions/update.ts](./src/actions/update.ts)
-
-### Read State
-
-Immutably read the example program state and check the expected result
-
-```
-USAGE
-  $ ts-node src read [STATEKEY] --payer [PAYERKEYPAIR]
-
-ARGUMENTS
-  STATEKEY      publicKey of the program state holding the vrf account
-
-OPTIONS
-  --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
-
-EXAMPLE
-  $ ts-node src read 7bbCPkxQScvnrw31xh4nASjvAsw6WdVc1LpNrRnpmFZW --payer secrets/payer-keypair.json
-```
-
-[src/actions/read.ts](./src/actions/read.ts)
 
 ### Watch Account
 
@@ -175,13 +190,36 @@ ARGUMENTS
   STATEKEY      publicKey of a Switchboard VRF Account or the example program's state
 
 OPTIONS
-
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
 
 EXAMPLE
   $ ts-node src watch 7bbCPkxQScvnrw31xh4nASjvAsw6WdVc1LpNrRnpmFZW
 ```
 
 [src/actions/watch.ts](./src/actions/watch.ts)
+
+### Benchmark
+
+Measure the latency between a VRF request and the value being accepted on-chain
+
+```
+USAGE
+  $ ts-node src benchmark [VRFPUBKEY] --payer [PAYERKEYPAIR]
+
+ARGUMENTS
+  VRFPUBKEY     publicKey of the Switchboard VRF Account to request a new randomness value for
+
+OPTIONS
+  --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
+
+EXAMPLE
+  $ ts-node src benchmark EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH  --payer secrets/payer-keypair.json
+```
+
+[src/actions/benchmark.ts](./src/actions/benchmark.ts)
 
 ## Getting Help
 

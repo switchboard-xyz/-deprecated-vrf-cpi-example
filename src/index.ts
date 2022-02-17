@@ -1,17 +1,18 @@
 #!/usr/bin/env node
-import dotenv from "dotenv";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import {
+  BenchmarkRpc,
   createVrfAccount,
   requestRandomness,
+  RequestRandomnessCPI,
+  Sandbox,
   setupOracleQueue,
   testCallback,
   updateProgram,
   watchAccount,
 } from "./actions";
-
-dotenv.config();
+import { DEFAULT_CLUSTER, DEFAULT_RPC_URL } from "./const";
 
 async function main(): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -94,12 +95,49 @@ async function main(): Promise<void> {
       },
       watchAccount
     )
+    .command(
+      `cpi [vrfKey]`,
+      "Request randomness with a CPI call",
+      (yarg) => {
+        yarg.positional("vrfKey", {
+          type: "string",
+          describe: "public key",
+          demand: false,
+        });
+      },
+      RequestRandomnessCPI
+    )
+    .command(
+      `benchmark [vrfKey]`,
+      "Measure the latency between a request randomness instruction and the returned result",
+      (yarg) => {
+        yarg.positional("vrfKey", {
+          type: "string",
+          describe: "public key",
+          demand: false,
+        });
+      },
+      BenchmarkRpc
+    )
+    .command(`sandbox`, "Sandbox", (yarg) => {}, Sandbox)
     .options({
       payer: {
         type: "string",
         describe: "filesystem path of keypair",
         demand: true,
         default: "secrets/payer-keypair.json",
+      },
+      rpcUrl: {
+        type: "string",
+        describe: "override default RPC server",
+        demand: true,
+        default: DEFAULT_RPC_URL,
+      },
+      cluster: {
+        type: "string",
+        describe: "Solana cluster to interact with",
+        demand: true,
+        default: DEFAULT_CLUSTER,
       },
     })
     .example("$0 setup", "test")
