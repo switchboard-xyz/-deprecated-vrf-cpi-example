@@ -100,13 +100,12 @@ export async function createVrfAccount(argv: any): Promise<void> {
   });
   console.log(toAccountString(`VRF Permission`, permissionAccount.publicKey));
 
-  if (!unpermissionedVrfEnabled && !payerKeypair.publicKey.equals(authority)) {
-    throw new Error(
-      `queue requires PERMIT_VRF_REQUESTS and wrong queue authority provided`
-    );
-  }
-
   if (!unpermissionedVrfEnabled) {
+    if (!payerKeypair.publicKey.equals(authority)) {
+      throw new Error(
+        `queue requires PERMIT_VRF_REQUESTS and wrong queue authority provided`
+      );
+    }
     await permissionAccount.set({
       authority: payerKeypair,
       permission: SwitchboardPermission.PERMIT_VRF_REQUESTS,
