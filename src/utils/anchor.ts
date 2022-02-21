@@ -28,7 +28,7 @@ export async function loadSwitchboardProgram(
 ): Promise<anchor.Program> {
   const programId = getSwitchboardPid(cluster);
   const connection = new Connection(rpcUrl, {
-    commitment: "confirmed",
+    commitment: "processed",
   });
   const wallet = new anchor.Wallet(payer);
   const provider = new anchor.Provider(connection, wallet, {

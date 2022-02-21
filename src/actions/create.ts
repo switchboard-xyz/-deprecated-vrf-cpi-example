@@ -53,6 +53,7 @@ export async function createVrfAccount(argv: any): Promise<void> {
     program,
     publicKey: new PublicKey(queueKey),
   });
+  const { unpermissionedVrfEnabled, authority } = await queue.loadData();
 
   const ixCoder = new anchor.InstructionCoder(vrfExampleProgram.idl);
 
@@ -99,12 +100,27 @@ export async function createVrfAccount(argv: any): Promise<void> {
   });
   console.log(toAccountString(`VRF Permission`, permissionAccount.publicKey));
 
-  await permissionAccount.set({
-    authority: payerKeypair,
-    permission: SwitchboardPermission.PERMIT_VRF_REQUESTS,
-    enable: true,
-  });
-  console.log(toAccountString(`     Permissions`, "PERMIT_VRF_REQUESTS"));
+  if (!unpermissionedVrfEnabled && !payerKeypair.publicKey.equals(authority)) {
+    throw new Error(
+      `queue requires PERMIT_VRF_REQUESTS and wrong queue authority provided`
+    );
+  }
+
+  if (!unpermissionedVrfEnabled) {
+    await permissionAccount.set({
+      authority: payerKeypair,
+      permission: SwitchboardPermission.PERMIT_VRF_REQUESTS,
+      enable: true,
+    });
+  }
+  const permissionData = await permissionAccount.loadData();
+
+  console.log(
+    toAccountString(
+      `     Permissions`,
+      toPermissionString(permissionData.permissions)
+    )
+  );
 
   console.log(chalk.yellow("######## INIT PROGRAM STATE ########"));
 
