@@ -20,15 +20,6 @@ You will need the following installed
 git clone https://github.com/switchboard-xyz/vrf-cpi-example.git
 cd vrf-cpi-example
 npm install
-anchor build
-```
-
-Then run `solana-keygen pubkey target/deploy/anchor_vrf_example-keypair.json` to get your program ID (PID). Be sure to update the declare_id macro in `programs/anchor-example/src/lib.rs`.
-
-Then deploy anchor-example to devnet:
-
-```bash
-anchor deploy
 ```
 
 ## Usage
