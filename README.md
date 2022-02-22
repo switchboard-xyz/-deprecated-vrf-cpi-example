@@ -31,6 +31,66 @@ Then deploy anchor-example to devnet:
 anchor deploy
 ```
 
+## Usage
+
+### Deploy Example Program
+
+```bash
+anchor build
+solana-keygen pubkey target/deploy/anchor_vrf_example-keypair.json
+```
+
+This is the program ID (PID) of the example program. Navigate to `programs/anchor-example/src/lib.rs` and update the declare_id macro with your example program ID.
+
+Next deploy the example program to devnet. This will be used as the callback function when a new randomness value is requested.
+
+```bash
+anchor deploy
+```
+
+### Setup Local Switchboard Queue
+
+First we'll create an oracle queue with a single oracle to fulfill randomness requests.
+
+```bash
+ts-node src setup --payer secrets/payer-keypair.json
+```
+
+This will output a docker command to run in a separate shell in order to start the oracle locally. It is **highly** reccomended to use a non rate limited rpcUrl to process the proof verification. 
+
+Next we'll create our VRF Account to hold the randomness result that has a callback to the exampleProgram's `UpdateResult` instruction, which will parse the result buffer and set the state to a value of [0 to `maxResult`). Make sure to subsitute [QUEUEKEY] for your newly created queue from the previous command.
+
+```bash
+ts-node src create [QUEUEKEY] --payer secrets/payer-keypair.json --maxGuess 123456789
+```
+
+**NOTE:** This will output 3 commands to watch the VRF Account and request a new randomness value. Run each in a separate shell to monitor the on-chain changes of your account in real time.
+
+### Use Switchboard Devnet Queue
+
+You may wish to use Switchboard's permissionless devnet queue to avoid needing to install docker. Substitute `F8ce7MsckeZAbAGmxjJNetxYXQa9mKr9nnrC3qKubyYy` for [QUEUEKEY].
+
+```bash
+ts-node src create [QUEUEKEY] --payer secrets/payer-keypair.json --maxGuess 123456789
+```
+
+**NOTE:** This will output 3 commands to watch the VRF Account and request a new randomness value. Run each in a separate shell to monitor the on-chain changes of your account in real time.
+
+### Request Randomness
+
+You must have 0.1 wrapped SOL in the keypair used in the previous steps. Run the following command to airdrop 1 SOL and wrap it:
+
+```bash
+solana airdrop 1 secrets/payer-keypair.json
+spl-token wrap 1 secrets/payer-keypair.json
+```
+
+Then request a new randomness value from the assigned oracle queue, transferring 0.1 wSOL to an escrow wallet that will reward the oracle fulfilling the update request.
+
+```bash
+ts-node src request [VRFPUBKEY] --payer secrets/payer-keypair.json
+```
+
 ## Commands
 
 - [Setup Oracle Network](#Setup-Oracle-Network)
@@ -100,7 +160,7 @@ OPTIONS
 
 EXAMPLE
   $ ts-node src create EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
-  $ ts-node src create EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --maxGuess 123456789
+  $ ts-node src create EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --maxResult 123456789
 ```
 
 [src/actions/create.ts](./src/actions/create.ts)
