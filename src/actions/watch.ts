@@ -7,6 +7,7 @@ import {
   anchorBNtoDateTimeString,
   loadSwitchboardProgram,
   loadVrfExampleProgram,
+  toVrfStatus,
   waitForever,
 } from "../utils";
 
@@ -46,8 +47,10 @@ export async function watchAccount(argv: any): Promise<void> {
       if (accountType === "VrfAccountData") {
         const vrfAccount = coder.decode(accountType, accountInfo.data);
         const data = {
+          status: toVrfStatus(vrfAccount.status),
           counter: vrfAccount.counter.toString(),
           producer: vrfAccount.builders[0].producer.toString() ?? "",
+          txRemaining: vrfAccount.builders[0].txRemaining,
           result: vrfAccount.currentRound.result
             ? `[${(vrfAccount.currentRound.result as number[]).join(",")}]`
             : "",

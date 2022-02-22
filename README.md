@@ -37,6 +37,7 @@ anchor deploy
 - [Create Accounts](#Create-Accounts)
 - [Request Randomness](#Request-Randomness)
 - [CPI - Request Randomness](#CPI-Request-Randomness)
+- [Manually Verify](#Manually-Verify)
 - [Manually Update State](#Manually-Update-State)
 - [Watch Account](#Watch-Account)
 - [Benchmark](#Benchmark)
@@ -155,6 +156,32 @@ https://switchboard-xyz.github.io/switchboardv2-api/classes/vrfaccount.html#veri
 ```
 
 [src/actions/cpi.ts](./src/actions/cpi.ts)
+
+### Manually Verify
+
+Submit remianing on-chain verify transactions if txRemaing is greater than 1.
+
+```
+USAGE
+  $ ts-node src verify [VRFKEY] --payer [PAYERKEYPAIR]
+
+ARGUMENTS
+  VRFKEY      publicKey of the program state holding the vrf account
+
+OPTIONS
+  --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
+  --cluster     Solana cluster to interact with. Defaults to devnet
+  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
+
+EXAMPLE
+  $ ts-node src verify EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
+
+USAGE NOTE
+  If the network is under high load, the oracle crank turning transactions may fail to submit, in which case you can manually turn the crank by calling verify yourself:
+https://switchboard-xyz.github.io/switchboardv2-api/classes/vrfaccount.html#verify
+```
+
+[src/actions/update.ts](./src/actions/update.ts)
 
 ### Manually Update State
 

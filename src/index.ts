@@ -10,6 +10,7 @@ import {
   setupOracleQueue,
   testCallback,
   updateProgram,
+  verifyProof,
   watchAccount,
 } from "./actions";
 import { DEFAULT_CLUSTER, DEFAULT_RPC_URL } from "./const";
@@ -37,6 +38,11 @@ async function main(): Promise<void> {
           type: "string",
           describe: "maximum result returned from vrf buffer",
           default: "256000",
+        });
+        yarg.option("no-example", {
+          type: "boolean",
+          describe: "ignore example program state and callback",
+          default: false,
         });
       },
       createVrfAccount
@@ -82,6 +88,22 @@ async function main(): Promise<void> {
         });
       },
       testCallback
+    )
+    .command(
+      `verify [vrfKey]`,
+      "",
+      (yarg) => {
+        yarg.positional("vrfKey", {
+          type: "string",
+          describe: "",
+          demand: true,
+        });
+        yarg.option("all", {
+          type: "boolean",
+          describe: "verify all remaining proof txn",
+        });
+      },
+      verifyProof
     )
     .command(
       `watch [pubkey]`,

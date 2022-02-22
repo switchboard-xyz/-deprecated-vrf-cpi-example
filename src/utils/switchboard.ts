@@ -26,3 +26,36 @@ export const getSwitchboardPid = (cluster: Cluster): PublicKey => {
   }
   return SBV2_DEVNET_PID;
 };
+
+export enum VrfStatus {
+  STATUS_NONE = "statusNone",
+  STATUS_REQUESTING = "statusRequesting",
+  STATUS_VERIFYING = "statusVerifying",
+  STATUS_VERIFIED = "statusVerifying",
+  STATUS_CALLBACK_SUCCESS = "statusCallbackSuccess",
+  STATUS_VERIFY_FAILURE = "statusVerifyFailure",
+}
+
+export const toVrfStatus = (
+  status: Record<string, unknown>
+): VrfStatus | string => {
+  if ("statusNone" in status) {
+    return VrfStatus.STATUS_NONE;
+  }
+  if ("statusRequesting" in status) {
+    return VrfStatus.STATUS_REQUESTING;
+  }
+  if ("statusVerifying" in status) {
+    return VrfStatus.STATUS_VERIFYING;
+  }
+  if ("statusVerified" in status) {
+    return VrfStatus.STATUS_VERIFIED;
+  }
+  if ("statusCallbackSuccess" in status) {
+    return VrfStatus.STATUS_CALLBACK_SUCCESS;
+  }
+  if ("statusVerifyFailure" in status) {
+    return VrfStatus.STATUS_VERIFY_FAILURE;
+  }
+  return "Unknown";
+};
