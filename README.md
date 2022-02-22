@@ -33,9 +33,10 @@ solana-keygen pubkey target/deploy/anchor_vrf_example-keypair.json
 
 This is the program ID (PID) of the example program. Navigate to `programs/anchor-example/src/lib.rs` and update the declare_id macro with your example program ID.
 
-Next deploy the example program to devnet. This will be used as the callback function when a new randomness value is requested.
+Next, rebuild the program with the updated ID and deploy the example program to devnet. This will be used as the callback function when a new randomness value is requested.
 
 ```bash
+anchor build
 anchor deploy
 ```
 
