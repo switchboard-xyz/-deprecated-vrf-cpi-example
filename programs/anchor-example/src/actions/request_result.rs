@@ -58,7 +58,7 @@ impl RequestResult<'_> {
         };
 
         msg!("requesting randomness");
-        vrf_request_randomness.request_randomness(
+        vrf_request_randomness.invoke(
             switchboard_program,
             params.state_bump,
             params.permission_bump,
