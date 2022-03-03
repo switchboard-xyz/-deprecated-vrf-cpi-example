@@ -48,9 +48,9 @@ First we'll create an oracle queue with a single oracle to fulfill randomness re
 ts-node src setup --payer secrets/payer-keypair.json
 ```
 
-This will output a docker command to run in a separate shell in order to start the oracle locally. It is **highly** reccomended to use a non rate limited rpcUrl to process the proof verification. 
+This will output a docker command to run in a separate shell in order to start the oracle locally. It is **highly** reccomended to use a non rate limited rpcUrl to process the proof verification.
 
-Next we'll create our VRF Account to hold the randomness result that has a callback to the exampleProgram's `UpdateResult` instruction, which will parse the result buffer and set the state to a value of [0 to `maxResult`). Make sure to subsitute [QUEUEKEY] for your newly created queue from the previous command.
+Next we'll create our VRF Account to hold the randomness result that has a callback to the clientProgram's `UpdateResult` instruction, which will parse the result buffer and set the state to a value of [0 to `maxResult`). Make sure to subsitute [QUEUEKEY] for your newly created queue from the previous command.
 
 ```bash
 ts-node src create [QUEUEKEY] --payer secrets/payer-keypair.json --maxGuess 123456789
@@ -163,10 +163,10 @@ Request randomness for a given VRF Account. Assumes payer keypair has 0.1 wSOL t
 
 ```
 USAGE
-  $ ts-node src request [VRFPUBKEY] --payer [PAYERKEYPAIR]
+  $ ts-node src request [STATEPUBKEY] --payer [PAYERKEYPAIR]
 
 ARGUMENTS
-  VRFPUBKEY     publicKey of the Switchboard VRF Account to request a new randomness value for
+  STATEPUBKEY     publicKey of the vrf client program's state
 
 OPTIONS
   --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
@@ -244,7 +244,7 @@ USAGE
   $ ts-node src update [STATEKEY] --payer [PAYERKEYPAIR]
 
 ARGUMENTS
-  STATEKEY      publicKey of the program state holding the vrf account
+  STATEKEY      publicKey of the vrf client program's state
 
 OPTIONS
   --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts

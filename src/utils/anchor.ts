@@ -1,8 +1,8 @@
 /* eslint-disable unicorn/prefer-module */
 import * as anchor from "@project-serum/anchor";
 import { Cluster, Connection, Keypair, PublicKey } from "@solana/web3.js";
-import fs from "node:fs";
-import path from "node:path";
+import fs from "fs";
+import path from "path";
 import { getSwitchboardPid } from "./switchboard";
 
 // VRF Example program keypair
@@ -58,7 +58,7 @@ export function loadVrfExamplePid(): PublicKey {
  * Load the local VRF anchor program which reads
  * a VRF account and logs its current randomness value.
  */
-export async function loadVrfExampleProgram(
+export async function loadVrfClientProgram(
   payer: Keypair,
   cluster: Cluster, // should verify example has been deployed
   rpcUrl: string

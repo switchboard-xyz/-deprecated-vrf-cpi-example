@@ -1,6 +1,6 @@
 import { Keypair } from "@solana/web3.js";
-import fs from "node:fs";
-import path from "node:path";
+import fs from "fs";
+import path from "path";
 
 export const loadKeypair = (fsPath: string): Keypair => {
   const keypairPath = fsPath.startsWith("/")

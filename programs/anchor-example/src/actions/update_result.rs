@@ -7,20 +7,20 @@ pub use switchboard_v2::VrfAccountData;
 #[instruction(params: UpdateResultParams)]
 pub struct UpdateResult<'info> {
     #[account(mut)]
-    pub state: AccountLoader<'info, VrfState>,
-    pub vrf_account: AccountInfo<'info>,
+    pub state: AccountLoader<'info, VrfClient>,
+    pub vrf: AccountInfo<'info>,
 }
 
 #[derive(Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct UpdateResultParams {}
 
 impl UpdateResult<'_> {
-    pub fn validate(&self, _ctx: &Context<Self>, _params: &UpdateResultParams) -> ProgramResult {
+    pub fn validate(&self, _ctx: &Context<Self>, _params: &UpdateResultParams) -> Result<()> {
         Ok(())
     }
 
-    pub fn actuate(ctx: &Context<Self>, _params: &UpdateResultParams) -> ProgramResult {
-        let vrf_account_info = &ctx.accounts.vrf_account;
+    pub fn actuate(ctx: &Context<Self>, _params: &UpdateResultParams) -> Result<()> {
+        let vrf_account_info = &ctx.accounts.vrf;
         let vrf = VrfAccountData::new(vrf_account_info)?;
         let result_buffer = vrf.get_result()?;
         if result_buffer == [0u8; 32] {

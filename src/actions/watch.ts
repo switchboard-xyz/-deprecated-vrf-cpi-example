@@ -2,16 +2,16 @@ import * as anchor from "@project-serum/anchor";
 import { AccountInfo, Context, PublicKey } from "@solana/web3.js";
 import { VrfAccount } from "@switchboard-xyz/switchboard-v2";
 import { DEFAULT_KEYPAIR } from "../const";
-import { VrfState } from "../types";
+import { VrfClient } from "../types";
 import {
   anchorBNtoDateTimeString,
   loadSwitchboardProgram,
-  loadVrfExampleProgram,
+  loadVrfClientProgram,
   toVrfStatus,
   waitForever,
 } from "../utils";
 
-type AccountType = "VrfAccountData" | "VrfState";
+type AccountType = "VrfAccountData" | "VrfClient";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function watchAccount(argv: any): Promise<void> {
@@ -26,18 +26,18 @@ export async function watchAccount(argv: any): Promise<void> {
     accountType = "VrfAccountData";
   } catch {
     try {
-      program = await loadVrfExampleProgram(DEFAULT_KEYPAIR, cluster, rpcUrl);
-      const account = new VrfState(program, publicKey);
+      program = await loadVrfClientProgram(DEFAULT_KEYPAIR, cluster, rpcUrl);
+      const account = new VrfClient(program, publicKey);
       await account.loadData();
-      accountType = "VrfState";
+      accountType = "VrfClient";
     } catch {
       throw new Error(
-        `pubkey is not a Switchboard or VrfExampleProgram account`
+        `pubkey is not a Switchboard or VrfclientProgram account`
       );
     }
   }
   if (!program) {
-    throw new Error(`pubkey is not a Switchboard or VrfExampleProgram account`);
+    throw new Error(`pubkey is not a Switchboard or VrfclientProgram account`);
   }
   const coder = new anchor.BorshAccountsCoder(program.idl);
 
@@ -56,7 +56,7 @@ export async function watchAccount(argv: any): Promise<void> {
             : "",
         };
         console.log(JSON.stringify(data, undefined, 2));
-      } else if (accountType === "VrfState") {
+      } else if (accountType === "VrfClient") {
         const state = coder.decode(accountType, accountInfo.data);
         const data = {
           result: state.result.toString(),

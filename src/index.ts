@@ -124,8 +124,13 @@ async function main(): Promise<void> {
         yarg.positional("vrfKey", {
           type: "string",
           describe: "public key",
-          demand: false,
+          demand: true,
         });
+        // yarg.positional("stateKey", {
+        //   type: "string",
+        //   describe: "public key",
+        //   demand: false,
+        // });
       },
       RequestRandomnessCPI
     )

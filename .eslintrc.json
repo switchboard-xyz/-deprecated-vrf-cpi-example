@@ -23,6 +23,7 @@
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-use-before-define": "off",
     "unicorn/filename-case": "off",
+    "unicorn/prefer-node-protocol": "off",
     "no-process-exit": "off",
     "unicorn/no-await-expression-member": "off"
   }

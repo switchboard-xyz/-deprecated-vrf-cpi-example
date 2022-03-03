@@ -7,8 +7,8 @@ import {
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
-import fs from "node:fs";
-import path from "node:path";
+import fs from "fs";
+import path from "path";
 import {
   loadKeypair,
   loadSwitchboardProgram,
@@ -30,7 +30,6 @@ export async function setupOracleQueue(argv: any): Promise<void> {
 
   // Program State Account and token mint for payout rewards
   const [programStateAccount] = ProgramStateAccount.fromSeed(program);
-  // console.log(toAccountString("Program State", programStateAccount.publicKey));
   const switchTokenMint = await programStateAccount.getTokenMint();
   const tokenAccount = await switchTokenMint.createAccount(
     payerKeypair.publicKey
@@ -43,6 +42,8 @@ export async function setupOracleQueue(argv: any): Promise<void> {
     reward: new anchor.BN(0), // no token account needed
     minStake: new anchor.BN(0),
     authority: payerKeypair.publicKey,
+    // Change to true to skip oraclePermission.set step
+    unpermissionedVrf: false,
     queueSize: 50,
   });
   console.log(toAccountString("Oracle Queue", queueAccount.publicKey));

@@ -9,43 +9,43 @@ pub struct InitState<'info> {
         init,
         seeds = [
             STATE_SEED, 
-            vrf_account.key().as_ref(), 
-            authority.key().as_ref()
+            vrf.key().as_ref(),
+            authority.key().as_ref(),
         ],
         payer = payer,
-        bump = params.state_bump,
+        bump,
     )]
-    pub state: AccountLoader<'info, VrfState>,
-    pub vrf_account: AccountInfo<'info>,
+    pub state: AccountLoader<'info, VrfClient>,
+    pub authority: AccountInfo<'info>,
     #[account(mut, signer)]
     pub payer: AccountInfo<'info>,
-    pub authority: AccountInfo<'info>,
+    pub vrf: AccountInfo<'info>,
     #[account(address = solana_program::system_program::ID)]
     pub system_program: AccountInfo<'info>,
 }
 
 #[derive(Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct InitStateParams {
-    pub state_bump: u8,
+    pub client_state_bump: u8,
     pub max_result: u64,
 }
 
 impl InitState<'_> {
-    pub fn validate(&self, ctx: &Context<Self>, params: &InitStateParams) -> ProgramResult {
+    pub fn validate(&self, ctx: &Context<Self>, params: &InitStateParams) -> Result<()> {
         msg!("Validate init");
         if params.max_result > MAX_RESULT {
-            return Err(ErrorCode::MaxResultExceedsMaximum.into());
+            return Err(error!(VrfErrorCode::MaxResultExceedsMaximum));
         }
 
         msg!("Checking VRF Account");
-        let vrf_account_info = &ctx.accounts.vrf_account;
+        let vrf_account_info = &ctx.accounts.vrf;
         let _vrf = VrfAccountData::new(vrf_account_info)
-            .map_err(|_| ProgramError::from(ErrorCode::InvalidSwitchboardVrfAccount))?;
+            .map_err(|_| VrfErrorCode::InvalidSwitchboardVrfAccount)?;
 
         Ok(())
     }
 
-    pub fn actuate(ctx: &Context<Self>, params: &InitStateParams) -> ProgramResult {
+    pub fn actuate(ctx: &Context<Self>, params: &InitStateParams) -> Result<()> {
         msg!("Actuate init");
         let state = &mut ctx.accounts.state.load_init()?;
         msg!("Setting max result");
@@ -56,7 +56,7 @@ impl InitState<'_> {
         }
 
         msg!("Setting VRF Account");
-        state.vrf_account = ctx.accounts.vrf_account.key.clone();
+        state.vrf = ctx.accounts.vrf.key.clone();
         state.authority = ctx.accounts.authority.key.clone();
 
         Ok(())

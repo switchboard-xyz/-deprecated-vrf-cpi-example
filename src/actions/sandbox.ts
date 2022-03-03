@@ -1,7 +1,7 @@
 import {
   loadKeypair,
   loadSwitchboardProgram,
-  loadVrfExampleProgram,
+  loadVrfClientProgram,
 } from "../utils";
 
 /** Sandbox command to add your own functionality */
@@ -10,7 +10,7 @@ export async function Sandbox(argv: any): Promise<void> {
   const { payer, cluster, rpcUrl } = argv;
   const payerKeypair = loadKeypair(payer);
 
-  const exampleProgram = await loadVrfExampleProgram(
+  const clientProgram = await loadVrfClientProgram(
     payerKeypair,
     cluster,
     rpcUrl
