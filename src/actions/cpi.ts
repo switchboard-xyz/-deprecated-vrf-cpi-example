@@ -6,33 +6,50 @@ import {
   ProgramStateAccount,
   VrfAccount,
 } from "@switchboard-xyz/switchboard-v2";
+import { VrfClient } from "../types";
 import {
   loadKeypair,
   loadSwitchboardProgram,
-  loadVrfExampleProgram,
+  loadVrfClientProgram,
 } from "../utils";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function RequestRandomnessCPI(argv: any): Promise<void> {
   const { payer, cluster, rpcUrl, vrfKey } = argv;
-  const vrfPubkey = new PublicKey(vrfKey);
-
   const payerKeypair = loadKeypair(payer);
-  const exampleProgram = await loadVrfExampleProgram(
+  const clientProgram = await loadVrfClientProgram(
     payerKeypair,
     cluster,
     rpcUrl
   );
-  const program = await loadSwitchboardProgram(payerKeypair, cluster, rpcUrl);
 
+  const switchboardProgram = await loadSwitchboardProgram(
+    payerKeypair,
+    cluster,
+    rpcUrl
+  );
+  const vrfPubkey = new PublicKey(vrfKey);
   const vrfAccount = new VrfAccount({
-    program,
+    program: switchboardProgram,
     publicKey: vrfPubkey,
   });
 
+  const [vrfClient, vrfBump] = VrfClient.fromSeed(
+    clientProgram,
+    vrfPubkey,
+    payerKeypair.publicKey
+  );
+  try {
+    await vrfClient.loadData();
+  } catch {
+    console.log(`vrf client account has not been initialized ${vrfBump}`);
+  }
+
+  const state = await vrfClient.loadData();
+
   const vrf = await vrfAccount.loadData();
   const queueAccount = new OracleQueueAccount({
-    program,
+    program: switchboardProgram,
     publicKey: vrf.oracleQueue,
   });
   const queue = await queueAccount.loadData();
@@ -40,12 +57,12 @@ export async function RequestRandomnessCPI(argv: any): Promise<void> {
   const dataBuffer = queue.dataBuffer;
   const escrow = vrf.escrow;
   const [programStateAccount, programStateBump] =
-    ProgramStateAccount.fromSeed(program);
+    ProgramStateAccount.fromSeed(switchboardProgram);
   const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
-    program,
+    switchboardProgram,
     queueAuthority,
     queueAccount.publicKey,
-    vrfPubkey
+    state.vrf
   );
   try {
     await permissionAccount.loadData();
@@ -59,21 +76,19 @@ export async function RequestRandomnessCPI(argv: any): Promise<void> {
     await switchTokenMint.getOrCreateAssociatedAccountInfo(
       payerKeypair.publicKey
     );
-  const tokenProgram = spl.TOKEN_PROGRAM_ID;
-  const recentBlockhashes = SYSVAR_RECENT_BLOCKHASHES_PUBKEY;
-  console.log(
-    `Sending Txn\nstateBump: ${programStateBump}\npermissionBump: ${permissionBump}`
-  );
-  const requestTxn = await exampleProgram.rpc.requestResult(
+
+  const requestTxn = await clientProgram.rpc.requestResult(
     {
-      stateBump: programStateBump,
+      clientStateBump: vrfBump,
+      switchboardStateBump: programStateBump,
       permissionBump,
     },
     {
       accounts: {
-        switchboardProgram: program.programId,
-        authority: vrf.authority,
-        vrf: vrfPubkey,
+        state: vrfClient.publicKey,
+        authority: payerKeypair.publicKey,
+        switchboardProgram: switchboardProgram.programId,
+        vrf: state.vrf,
         oracleQueue: queueAccount.publicKey,
         queueAuthority,
         dataBuffer,
@@ -81,9 +96,9 @@ export async function RequestRandomnessCPI(argv: any): Promise<void> {
         escrow,
         payerWallet: payerTokenAccount.address,
         payerAuthority: payerKeypair.publicKey,
-        recentBlockhashes,
+        recentBlockhashes: SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
         programState: programStateAccount.publicKey,
-        tokenProgram,
+        tokenProgram: spl.TOKEN_PROGRAM_ID,
       },
       signers: [payerKeypair, payerKeypair],
     }

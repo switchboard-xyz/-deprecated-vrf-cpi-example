@@ -45,10 +45,6 @@ export async function BenchmarkRpc(argv: any): Promise<void> {
 
   console.log(chalk.yellow("######## REQUESTING RANDOMNESS ########"));
 
-  const start = Date.now();
-  const startCounter: anchor.BN = vrf.counter;
-  const endCounter: anchor.BN = startCounter.add(new anchor.BN(1));
-
   vrfAccount.requestRandomness({
     authority: payerKeypair,
     payer: payerTokenAccount.address,
@@ -59,6 +55,9 @@ export async function BenchmarkRpc(argv: any): Promise<void> {
 
   console.log(chalk.yellow("######## AWAITING RANDOMNESS ########"));
 
+  let start = Date.now();
+  const startCounter: anchor.BN = vrf.counter;
+  const endCounter: anchor.BN = startCounter.add(new anchor.BN(1));
   const coder = new anchor.BorshAccountsCoder(program.idl);
 
   program.provider.connection.onAccountChange(
@@ -66,6 +65,10 @@ export async function BenchmarkRpc(argv: any): Promise<void> {
     (accountInfo: AccountInfo<Buffer>, context: Context) => {
       const decodedVrf = coder.decode("VrfAccountData", accountInfo.data);
       const result: number[] = decodedVrf.currentRound.result;
+      const txRemaining = decodedVrf.builders[0].txRemaining;
+      if (txRemaining === 277) {
+        start = Date.now();
+      }
       if (
         endCounter.eq(decodedVrf.counter) &&
         !result.every((item) => item === 0)

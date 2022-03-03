@@ -8,14 +8,14 @@ import {
   VrfAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
-import fs from "node:fs";
-import path from "node:path";
-import { VrfState } from "../types";
+import fs from "fs";
+import path from "path";
+import { VrfClient } from "../types";
 import {
   buffer2string,
   loadKeypair,
   loadSwitchboardProgram,
-  loadVrfExampleProgram,
+  loadVrfClientProgram,
   toAccountString,
   toPermissionString,
 } from "../utils";
@@ -25,7 +25,16 @@ export async function createVrfAccount(argv: any): Promise<void> {
   const { payer, cluster, rpcUrl, queueKey, keypair, maxResult } = argv;
   const max = new anchor.BN(maxResult);
   const payerKeypair = loadKeypair(payer);
-  const program = await loadSwitchboardProgram(payerKeypair, cluster, rpcUrl);
+  const switchboardProgram = await loadSwitchboardProgram(
+    payerKeypair,
+    cluster,
+    rpcUrl
+  );
+  const vrfclientProgram = await loadVrfClientProgram(
+    payerKeypair,
+    cluster,
+    rpcUrl
+  );
 
   const vrfSecret = keypair
     ? loadKeypair(keypair)
@@ -33,37 +42,35 @@ export async function createVrfAccount(argv: any): Promise<void> {
 
   // create state account but dont send instruction
   // need public key for VRF CPI
-  const vrfExampleProgram = await loadVrfExampleProgram(
-    payerKeypair,
-    cluster,
-    rpcUrl
-  );
-  const [stateAccount, stateBump] = VrfState.fromSeed(
-    vrfExampleProgram,
+  const [stateAccount, stateBump] = VrfClient.fromSeed(
+    vrfclientProgram,
     vrfSecret.publicKey,
-    payerKeypair.publicKey
+    payerKeypair.publicKey // client state authority
   );
   try {
     await stateAccount.loadData();
   } catch {}
 
+  console.log(`client bump: ${stateBump}`);
+
   console.log(chalk.yellow("######## CREATE VRF ACCOUNT ########"));
 
   const queue = new OracleQueueAccount({
-    program,
+    program: switchboardProgram,
     publicKey: new PublicKey(queueKey),
   });
   const { unpermissionedVrfEnabled, authority } = await queue.loadData();
 
-  const ixCoder = new anchor.BorshInstructionCoder(vrfExampleProgram.idl);
+  const ixCoder = new anchor.BorshInstructionCoder(vrfclientProgram.idl);
 
   const callback: Callback = {
-    programId: vrfExampleProgram.programId,
+    programId: vrfclientProgram.programId,
     accounts: [
+      // ensure all accounts in updateResult are populated
       { pubkey: stateAccount.publicKey, isSigner: false, isWritable: true },
       { pubkey: vrfSecret.publicKey, isSigner: false, isWritable: false },
     ],
-    ixData: ixCoder.encode("updateResult", ""),
+    ixData: ixCoder.encode("updateResult", ""), // pass any params for instruction here
   };
 
   console.log(
@@ -85,15 +92,15 @@ export async function createVrfAccount(argv: any): Promise<void> {
     )
   );
 
-  const vrfAccount = await VrfAccount.create(program, {
+  const vrfAccount = await VrfAccount.create(switchboardProgram, {
     queue,
     callback,
-    authority: payerKeypair.publicKey,
+    authority: stateAccount.publicKey, // vrf authority
     keypair: vrfSecret,
   });
   console.log(toAccountString(`VRF Account`, vrfAccount.publicKey));
 
-  const permissionAccount = await PermissionAccount.create(program, {
+  const permissionAccount = await PermissionAccount.create(switchboardProgram, {
     authority: (await queue.loadData()).authority,
     granter: queue.publicKey,
     grantee: vrfAccount.publicKey,
@@ -123,20 +130,20 @@ export async function createVrfAccount(argv: any): Promise<void> {
 
   console.log(chalk.yellow("######## INIT PROGRAM STATE ########"));
 
-  await vrfExampleProgram.rpc.initState(
+  await vrfclientProgram.rpc.initState(
     {
-      stateBump,
+      clientStateBump: stateBump,
       maxResult: max,
     },
     {
       accounts: {
         state: stateAccount.publicKey,
-        vrfAccount: vrfAccount.publicKey,
+        vrf: vrfAccount.publicKey,
         payer: payerKeypair.publicKey,
         authority: payerKeypair.publicKey,
         systemProgram: SystemProgram.programId,
       },
-      signers: [payerKeypair],
+      signers: [payerKeypair, payerKeypair],
     }
   );
   console.log(toAccountString("Program State", stateAccount.publicKey));
@@ -145,7 +152,7 @@ export async function createVrfAccount(argv: any): Promise<void> {
 
   console.log(
     `${chalk.blue(
-      "Run the following command to watch the Switchboard VrfAccount:"
+      "Run the following command to watch the Switchboard vrf:"
     )}\n\t${chalk.white(
       "ts-node src watch",
       vrfAccount.publicKey.toString(),
@@ -157,7 +164,7 @@ export async function createVrfAccount(argv: any): Promise<void> {
   );
   console.log(
     `${chalk.blue(
-      "Run the following command to watch the example program:"
+      "Run the following command to watch the client program:"
     )}\n\t${chalk.white(
       "ts-node src watch",
       stateAccount.publicKey.toString(),
@@ -202,7 +209,7 @@ export async function createVrfAccount(argv: any): Promise<void> {
       {
         programState: stateAccount.publicKey.toString(),
         maxResult: state.maxResult.toString(),
-        vrfAccount: {
+        vrf: {
           publicKey: vrfAccount.publicKey.toString(),
           authority: state.authority.toString(),
           permissionPubkey: permissionAccount.publicKey.toString(),

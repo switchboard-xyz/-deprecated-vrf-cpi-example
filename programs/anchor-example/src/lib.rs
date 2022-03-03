@@ -1,7 +1,8 @@
 pub mod actions;
 pub use actions::*;
 
-use anchor_lang::prelude::*;
+pub use anchor_lang::prelude::*;
+use anchor_spl::token::TokenAccount;
 
 declare_id!("FL6C2gLaDqSgeKmVrL7E75rqJhdnn9bvFp7GiQmy1Yrn");
 
@@ -14,41 +15,39 @@ pub mod anchor_vrf_example {
     use super::*;
 
     #[access_control(ctx.accounts.validate(&ctx, &params))]
-    pub fn init_state(ctx: Context<InitState>, params: InitStateParams) -> ProgramResult {
+    pub fn init_state(ctx: Context<InitState>, params: InitStateParams) -> Result<()> {
         InitState::actuate(&ctx, &params)
     }
 
     #[access_control(ctx.accounts.validate(&ctx, &params))]
-    pub fn update_result(ctx: Context<UpdateResult>, params: UpdateResultParams) -> ProgramResult {
+    pub fn update_result(ctx: Context<UpdateResult>, params: UpdateResultParams) -> Result<()> {
         UpdateResult::actuate(&ctx, &params)
     }
 
     #[access_control(ctx.accounts.validate(&ctx, &params))]
-    pub fn request_result(
-        ctx: Context<RequestResult>,
-        params: RequestResultParams,
-    ) -> ProgramResult {
+    pub fn request_result(ctx: Context<RequestResult>, params: RequestResultParams) -> Result<()> {
         RequestResult::actuate(&ctx, &params)
     }
 }
 
 #[account(zero_copy)]
-pub struct VrfState {
+pub struct VrfClient {
     pub authority: Pubkey,
     pub max_result: u64,
-    pub vrf_account: Pubkey,
+    pub vrf: Pubkey,
     pub result_buffer: [u8; 32],
     pub result: u128,
     pub last_timestamp: i64,
 }
-impl Default for VrfState {
+impl Default for VrfClient {
     fn default() -> Self {
         unsafe { std::mem::zeroed() }
     }
 }
 
-#[error]
-pub enum ErrorCode {
+#[error_code]
+#[derive(Eq, PartialEq)]
+pub enum VrfErrorCode {
     #[msg("Not a valid Switchboard VRF account")]
     InvalidSwitchboardVrfAccount,
     #[msg("The max result must not exceed u64")]

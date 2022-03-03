@@ -1,7 +1,16 @@
 import * as anchor from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 
-export class VrfState {
+export interface VrfClientState {
+  authority: PublicKey;
+  maxResult: anchor.BN;
+  vrf: PublicKey;
+  resultBuffer: number[];
+  result: anchor.BN;
+  lastTimestamp: anchor.BN;
+}
+
+export class VrfClient {
   program: anchor.Program;
 
   publicKey: PublicKey;
@@ -18,11 +27,11 @@ export class VrfState {
     return this.program.account.sbState.size;
   }
 
-  async loadData(): Promise<any> {
-    const state: any = await this.program.account.vrfState.fetch(
+  async loadData(): Promise<VrfClientState> {
+    // console.log(JSON.stringify(this.program.account, undefined, 2));
+    const state: any = await this.program.account.vrfClient.fetch(
       this.publicKey
     );
-    state.ebuf = undefined;
     return state;
   }
 
@@ -34,28 +43,28 @@ export class VrfState {
     program: anchor.Program,
     vrfPubkey: PublicKey,
     authority: PublicKey
-  ): [VrfState, number] {
+  ): [VrfClient, number] {
     const [statePubkey, stateBump] =
       anchor.utils.publicKey.findProgramAddressSync(
         [Buffer.from("STATE"), vrfPubkey.toBytes(), authority.toBytes()],
         program.programId
       );
-    return [new VrfState(program, statePubkey), stateBump];
+    return [new VrfClient(program, statePubkey), stateBump];
   }
 
   // public static async create(
   //   program: anchor.Program,
   //   vrfPubkey: PublicKey,
   //   maxResult = 25_000
-  // ): Promise<VrfState> {
+  // ): Promise<VrfClient> {
   //   const payerKeypair = Keypair.fromSecretKey(
   //     (program.provider.wallet as any).payer.secretKey
   //   );
-  //   const [stateAccount, stateBump] = VrfState.fromSeed(
+  //   const [stateAccount, stateBump] = VrfClient.fromSeed(
   //     program,
   //     payerKeypair.publicKey
   //   );
-  //   const state = new VrfState(program, stateAccount.publicKey);
+  //   const state = new VrfClient(program, stateAccount.publicKey);
   //   // Short circuit if already created.
   //   try {
   //     await state.loadData();
@@ -70,7 +79,7 @@ export class VrfState {
   //     {
   //       accounts: {
   //         state: stateAccount.publicKey,
-  //         vrfAccount: vrfPubkey,
+  //         vrf: vrfPubkey,
   //         payer: payerKeypair.publicKey,
   //         authority: payerKeypair.publicKey,
   //         systemProgram: SystemProgram.programId,
