@@ -4,7 +4,6 @@ import yargs from "yargs/yargs";
 import {
   BenchmarkRpc,
   createVrfAccount,
-  requestRandomness,
   RequestRandomnessCPI,
   Sandbox,
   setupOracleQueue,
@@ -46,18 +45,6 @@ async function main(): Promise<void> {
         });
       },
       createVrfAccount
-    )
-    .command(
-      `request [vrfKey]`,
-      "request randomness for a VRF account",
-      (yarg) => {
-        yarg.positional("keypair", {
-          type: "string",
-          describe: "public key of the VRF account to request randomness for",
-          demand: true,
-        });
-      },
-      requestRandomness
     )
     .command(
       `update [stateKey]`,
@@ -118,7 +105,7 @@ async function main(): Promise<void> {
       watchAccount
     )
     .command(
-      `cpi [vrfKey]`,
+      `request [vrfKey]`,
       "Request randomness with a CPI call",
       (yarg) => {
         yarg.positional("vrfKey", {
@@ -126,11 +113,6 @@ async function main(): Promise<void> {
           describe: "public key",
           demand: true,
         });
-        // yarg.positional("stateKey", {
-        //   type: "string",
-        //   describe: "public key",
-        //   demand: false,
-        // });
       },
       RequestRandomnessCPI
     )

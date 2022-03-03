@@ -1,50 +1,107 @@
-import * as anchor from "@project-serum/anchor";
-import { PublicKey } from "@solana/web3.js";
+import * as spl from "@solana/spl-token";
+import { PublicKey, SYSVAR_RECENT_BLOCKHASHES_PUBKEY } from "@solana/web3.js";
 import {
+  OracleQueueAccount,
+  PermissionAccount,
   ProgramStateAccount,
   VrfAccount,
 } from "@switchboard-xyz/switchboard-v2";
-import chalk from "chalk";
-import { CHECK_ICON, loadKeypair, loadSwitchboardProgram } from "../utils";
+import { VrfClient } from "../types";
+import {
+  loadKeypair,
+  loadSwitchboardProgram,
+  loadVrfClientProgram,
+} from "../utils";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export async function requestRandomness(argv: any): Promise<void> {
+export async function RequestRandomnessCPI(argv: any): Promise<void> {
   const { payer, cluster, rpcUrl, vrfKey } = argv;
   const payerKeypair = loadKeypair(payer);
-  const program: anchor.Program = await loadSwitchboardProgram(
+  const clientProgram = await loadVrfClientProgram(
     payerKeypair,
     cluster,
     rpcUrl
   );
 
-  const [programStateAccount] = ProgramStateAccount.fromSeed(program);
+  const switchboardProgram = await loadSwitchboardProgram(
+    payerKeypair,
+    cluster,
+    rpcUrl
+  );
+  const vrfPubkey = new PublicKey(vrfKey);
+  const vrfAccount = new VrfAccount({
+    program: switchboardProgram,
+    publicKey: vrfPubkey,
+  });
+
+  const [vrfClient, vrfBump] = VrfClient.fromSeed(
+    clientProgram,
+    vrfPubkey,
+    payerKeypair.publicKey
+  );
+  try {
+    await vrfClient.loadData();
+  } catch {
+    console.log(`vrf client account has not been initialized ${vrfBump}`);
+  }
+
+  const state = await vrfClient.loadData();
+
+  const vrf = await vrfAccount.loadData();
+  const queueAccount = new OracleQueueAccount({
+    program: switchboardProgram,
+    publicKey: vrf.oracleQueue,
+  });
+  const queue = await queueAccount.loadData();
+  const queueAuthority = queue.authority;
+  const dataBuffer = queue.dataBuffer;
+  const escrow = vrf.escrow;
+  const [programStateAccount, programStateBump] =
+    ProgramStateAccount.fromSeed(switchboardProgram);
+  const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
+    switchboardProgram,
+    queueAuthority,
+    queueAccount.publicKey,
+    state.vrf
+  );
+  try {
+    await permissionAccount.loadData();
+  } catch {
+    throw new Error(
+      "A requested permission pda account has not been initialized."
+    );
+  }
   const switchTokenMint = await programStateAccount.getTokenMint();
   const payerTokenAccount =
     await switchTokenMint.getOrCreateAssociatedAccountInfo(
       payerKeypair.publicKey
     );
-  const balance = await program.provider.connection.getTokenAccountBalance(
-    payerTokenAccount.address
+
+  const requestTxn = await clientProgram.rpc.requestResult(
+    {
+      clientStateBump: vrfBump,
+      switchboardStateBump: programStateBump,
+      permissionBump,
+    },
+    {
+      accounts: {
+        state: vrfClient.publicKey,
+        authority: payerKeypair.publicKey,
+        switchboardProgram: switchboardProgram.programId,
+        vrf: state.vrf,
+        oracleQueue: queueAccount.publicKey,
+        queueAuthority,
+        dataBuffer,
+        permission: permissionAccount.publicKey,
+        escrow,
+        payerWallet: payerTokenAccount.address,
+        payerAuthority: payerKeypair.publicKey,
+        recentBlockhashes: SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+        programState: programStateAccount.publicKey,
+        tokenProgram: spl.TOKEN_PROGRAM_ID,
+      },
+      signers: [payerKeypair, payerKeypair],
+    }
   );
-  if (!balance.value.uiAmount || balance.value.uiAmount < 0.1) {
-    throw new Error(
-      `associated token account must have a balance greater than 0.1\nbalance ${balance.value.uiAmount}\ntokenAccount ${payerTokenAccount.address}\nmint ${switchTokenMint.publicKey}`
-    );
-  }
-
-  const vrfAccount = new VrfAccount({
-    program,
-    publicKey: new PublicKey(vrfKey),
-  });
-  const vrf = await vrfAccount.loadData();
-
-  console.log(chalk.yellow("######## REQUESTING RANDOMNESS ########"));
-
-  await vrfAccount.requestRandomness({
-    authority: payerKeypair,
-    payer: payerTokenAccount.address,
-    payerAuthority: payerKeypair,
-  });
-
-  console.log(chalk.green(`${CHECK_ICON}Randomness requested successfully`));
+  console.log(`https://solscan.io/tx/${requestTxn}?cluster=${cluster}`);
 }
