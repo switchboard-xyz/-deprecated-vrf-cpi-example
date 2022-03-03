@@ -39,7 +39,7 @@ export async function watchAccount(argv: any): Promise<void> {
   if (!program) {
     throw new Error(`pubkey is not a Switchboard or VrfExampleProgram account`);
   }
-  const coder = new anchor.AccountsCoder(program.idl);
+  const coder = new anchor.BorshAccountsCoder(program.idl);
 
   program.provider.connection.onAccountChange(
     publicKey,

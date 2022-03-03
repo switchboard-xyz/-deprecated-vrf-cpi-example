@@ -20,11 +20,11 @@ export async function testCallback(argv: any): Promise<void> {
   const vrf = await vrfAccount.loadData();
   // console.log(JSON.stringify(vrf.callback.accounts, undefined, 2));
 
-  const sig = await vrfAccount.verify(oracleAccount, false, 1);
+  // const sig = await vrfAccount.verify(oracleAccount, false, 1);
 
-  // console.log(`https://explorer.solana.com/tx/${signature}?cluster=devnet`);
-  // const confirmedTxn = await program.provider.connection.getTransaction(
-  //   signature
-  // );
-  console.log(JSON.stringify(sig, undefined, 2));
+  // // console.log(`https://explorer.solana.com/tx/${signature}?cluster=devnet`);
+  // // const confirmedTxn = await program.provider.connection.getTransaction(
+  // //   signature
+  // // );
+  // console.log(JSON.stringify(sig, undefined, 2));
 }

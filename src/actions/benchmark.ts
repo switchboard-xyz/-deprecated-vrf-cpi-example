@@ -59,7 +59,7 @@ export async function BenchmarkRpc(argv: any): Promise<void> {
 
   console.log(chalk.yellow("######## AWAITING RANDOMNESS ########"));
 
-  const coder = new anchor.AccountsCoder(program.idl);
+  const coder = new anchor.BorshAccountsCoder(program.idl);
 
   program.provider.connection.onAccountChange(
     vrfAccount.publicKey,

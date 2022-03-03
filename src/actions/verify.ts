@@ -8,11 +8,15 @@ export async function verifyProof(argv: any): Promise<void> {
   const payerKeypair = loadKeypair(payer);
   const program = await loadSwitchboardProgram(payerKeypair, cluster, rpcUrl);
 
+  const vrfPubkey = new PublicKey(vrfKey);
+  console.log(vrfPubkey.toString());
+
   const vrfAccount = new VrfAccount({
     program,
-    publicKey: new PublicKey(vrfKey),
+    publicKey: vrfPubkey,
   });
   const vrf = await vrfAccount.loadData();
+  console.log(JSON.stringify(vrf));
 
   if (vrf.builders[0].txRemaining <= 1) {
     console.log(`Proof has already been verified`);
@@ -27,7 +31,6 @@ export async function verifyProof(argv: any): Promise<void> {
 
   const sig = await vrfAccount.verify(
     oracleAccount,
-    false,
     vrf.builders[0].txRemaining
   );
 

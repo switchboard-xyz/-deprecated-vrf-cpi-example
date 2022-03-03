@@ -55,7 +55,7 @@ export async function createVrfAccount(argv: any): Promise<void> {
   });
   const { unpermissionedVrfEnabled, authority } = await queue.loadData();
 
-  const ixCoder = new anchor.InstructionCoder(vrfExampleProgram.idl);
+  const ixCoder = new anchor.BorshInstructionCoder(vrfExampleProgram.idl);
 
   const callback: Callback = {
     programId: vrfExampleProgram.programId,

@@ -91,7 +91,7 @@ async function main(): Promise<void> {
     )
     .command(
       `verify [vrfKey]`,
-      "",
+      "verify the VRF proof",
       (yarg) => {
         yarg.positional("vrfKey", {
           type: "string",
