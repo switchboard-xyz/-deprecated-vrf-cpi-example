@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   oracle:
-    image: "switchboardlabs/node:dev-v2-2-22-22l"
+    image: "switchboardlabs/node:dev-v2-3-11-22"
     network_mode: host
     restart: always
     secrets:
