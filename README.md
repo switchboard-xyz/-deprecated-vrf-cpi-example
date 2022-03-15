@@ -88,7 +88,6 @@ ts-node src request [VRFPUBKEY] --payer secrets/payer-keypair.json
 - [Setup Oracle Network](#Setup-Oracle-Network)
 - [Create Accounts](#Create-Accounts)
 - [Request Randomness](#Request-Randomness)
-- [CPI - Request Randomness](#CPI-Request-Randomness)
 - [Manually Verify](#Manually-Verify)
 - [Manually Update State](#Manually-Update-State)
 - [Watch Account](#Watch-Account)
@@ -163,33 +162,7 @@ Request randomness for a given VRF Account. Assumes payer keypair has 0.1 wSOL t
 
 ```
 USAGE
-  $ ts-node src request [STATEPUBKEY] --payer [PAYERKEYPAIR]
-
-ARGUMENTS
-  STATEPUBKEY     publicKey of the vrf client program's state
-
-OPTIONS
-  --payer       filesystem path of keypair file that will pay for, and be authority for, any new accounts
-  --cluster     Solana cluster to interact with. Defaults to devnet
-  --rpcUrl      custom RPC endpoint for faster response times. Defaults to clusters default endpoint.
-
-EXAMPLE
-  $ ts-node src request EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
-
-USAGE NOTE
-  If the network is under high load, the oracle crank turning transactions may fail to submit, in which case you can manually turn the crank by calling verify yourself:
-https://switchboard-xyz.github.io/switchboardv2-api/classes/vrfaccount.html#verify
-```
-
-[src/actions/request.ts](./src/actions/request.ts)
-
-### CPI Request Randomness
-
-Use a CPI call in the example program to request a new random value.
-
-```
-USAGE
-  $ ts-node src cpi [VRFPUBKEY] --payer [PAYERKEYPAIR]
+  $ ts-node src request [VRFPUBKEY] --payer [PAYERKEYPAIR]
 
 ARGUMENTS
   VRFPUBKEY     publicKey of the Switchboard VRF Account to request a new randomness value for
@@ -203,11 +176,11 @@ EXAMPLE
   $ ts-node src request EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
 
 USAGE NOTE
-  If the network is under high load, the oracle crank turning transactions may fail to submit, in which case you can manually turn the crank by calling verify yourself:
+  If the network is under high load, the oracle crank turning transactions may fail to submit, in which case you can manually turn the crank by calling verify yourself with the following verify command. Also see the documentation:
 https://switchboard-xyz.github.io/switchboardv2-api/classes/vrfaccount.html#verify
 ```
 
-[src/actions/cpi.ts](./src/actions/cpi.ts)
+[src/actions/request.ts](./src/actions/request.ts)
 
 ### Manually Verify
 
@@ -228,9 +201,7 @@ OPTIONS
 EXAMPLE
   $ ts-node src verify EY5zeq17vsMo8Zg1odbEqG6x4j4nrQo5jQ5b7twB2YoH --payer secrets/payer-keypair.json
 
-USAGE NOTE
-  If the network is under high load, the oracle crank turning transactions may fail to submit, in which case you can manually turn the crank by calling verify yourself:
-https://switchboard-xyz.github.io/switchboardv2-api/classes/vrfaccount.html#verify
+
 ```
 
 [src/actions/update.ts](./src/actions/update.ts)
