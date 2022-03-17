@@ -42,6 +42,19 @@ export async function BenchmarkRpc(argv: any): Promise<void> {
     publicKey: new PublicKey(vrfKey),
   });
   const vrf = await vrfAccount.loadData();
+  // console.log(`Payer ${payerKeypair.publicKey}`);
+  // console.log(
+  //   JSON.stringify(
+  //     {
+  //       vrf: vrfAccount.publicKey.toString(),
+  //       escrow: vrf.escrow.toString(),
+  //       authority: vrf.authority.toString(),
+  //       oracleQueue: vrf.oracleQueue.toString(),
+  //     },
+  //     undefined,
+  //     2
+  //   )
+  // );
 
   console.log(chalk.yellow("######## REQUESTING RANDOMNESS ########"));
 

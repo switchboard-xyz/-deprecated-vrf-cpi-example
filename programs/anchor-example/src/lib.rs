@@ -30,14 +30,17 @@ pub mod anchor_vrf_example {
     }
 }
 
+#[repr(packed)]
 #[account(zero_copy)]
+#[derive(AnchorDeserialize, AnchorSerialize)]
 pub struct VrfClient {
-    pub authority: Pubkey,
+    pub bump: u8,
     pub max_result: u64,
-    pub vrf: Pubkey,
     pub result_buffer: [u8; 32],
     pub result: u128,
     pub last_timestamp: i64,
+    pub authority: Pubkey,
+    pub vrf: Pubkey,
 }
 impl Default for VrfClient {
     fn default() -> Self {

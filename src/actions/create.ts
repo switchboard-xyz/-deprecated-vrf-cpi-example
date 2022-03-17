@@ -42,16 +42,16 @@ export async function createVrfAccount(argv: any): Promise<void> {
 
   // create state account but dont send instruction
   // need public key for VRF CPI
-  const [stateAccount, stateBump] = VrfClient.fromSeed(
+  const [clientAccount, clientBump] = VrfClient.fromSeed(
     vrfclientProgram,
     vrfSecret.publicKey,
     payerKeypair.publicKey // client state authority
   );
   try {
-    await stateAccount.loadData();
+    await clientAccount.loadData();
   } catch {}
 
-  console.log(`client bump: ${stateBump}`);
+  console.log(`client bump: ${clientBump}`);
 
   console.log(chalk.yellow("######## CREATE VRF ACCOUNT ########"));
 
@@ -67,7 +67,7 @@ export async function createVrfAccount(argv: any): Promise<void> {
     programId: vrfclientProgram.programId,
     accounts: [
       // ensure all accounts in updateResult are populated
-      { pubkey: stateAccount.publicKey, isSigner: false, isWritable: true },
+      { pubkey: clientAccount.publicKey, isSigner: false, isWritable: true },
       { pubkey: vrfSecret.publicKey, isSigner: false, isWritable: false },
     ],
     ixData: ixCoder.encode("updateResult", ""), // pass any params for instruction here
@@ -95,7 +95,7 @@ export async function createVrfAccount(argv: any): Promise<void> {
   const vrfAccount = await VrfAccount.create(switchboardProgram, {
     queue,
     callback,
-    authority: stateAccount.publicKey, // vrf authority
+    authority: clientAccount.publicKey, // vrf authority
     keypair: vrfSecret,
   });
   console.log(toAccountString(`VRF Account`, vrfAccount.publicKey));
@@ -132,22 +132,20 @@ export async function createVrfAccount(argv: any): Promise<void> {
 
   await vrfclientProgram.rpc.initState(
     {
-      clientStateBump: stateBump,
       maxResult: max,
     },
     {
       accounts: {
-        state: stateAccount.publicKey,
+        state: clientAccount.publicKey,
         vrf: vrfAccount.publicKey,
         payer: payerKeypair.publicKey,
         authority: payerKeypair.publicKey,
         systemProgram: SystemProgram.programId,
       },
-      signers: [payerKeypair, payerKeypair],
     }
   );
-  console.log(toAccountString("Program State", stateAccount.publicKey));
-  const state = await stateAccount.loadData();
+  console.log(toAccountString("Program State", clientAccount.publicKey));
+  const state = await clientAccount.loadData();
   const permission = await permissionAccount.loadData();
 
   console.log(
@@ -167,7 +165,7 @@ export async function createVrfAccount(argv: any): Promise<void> {
       "Run the following command to watch the client program:"
     )}\n\t${chalk.white(
       "ts-node src watch",
-      stateAccount.publicKey.toString(),
+      clientAccount.publicKey.toString(),
       "--rpcUrl",
       rpcUrl,
       "--cluster",
@@ -201,13 +199,13 @@ export async function createVrfAccount(argv: any): Promise<void> {
 
   const outFile = path.join(
     process.cwd(),
-    `state_${stateAccount.publicKey}.json`
+    `state_${clientAccount.publicKey}.json`
   );
   fs.writeFileSync(
     outFile,
     JSON.stringify(
       {
-        programState: stateAccount.publicKey.toString(),
+        programState: clientAccount.publicKey.toString(),
         maxResult: state.maxResult.toString(),
         vrf: {
           publicKey: vrfAccount.publicKey.toString(),

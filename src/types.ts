@@ -2,6 +2,7 @@ import * as anchor from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 
 export interface VrfClientState {
+  bump: number;
   authority: PublicKey;
   maxResult: anchor.BN;
   vrf: PublicKey;

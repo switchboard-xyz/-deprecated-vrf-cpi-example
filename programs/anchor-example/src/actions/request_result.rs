@@ -1,6 +1,7 @@
 use crate::*;
 use anchor_lang::prelude::*;
 pub use switchboard_v2::{VrfAccountData, VrfRequestRandomness};
+use anchor_spl::token::Token;
 
 #[derive(Accounts)]
 #[instruction(params: RequestResultParams)] // rpc parameters hint
@@ -12,37 +13,50 @@ pub struct RequestResult<'info> {
             vrf.key().as_ref(),
             authority.key().as_ref(),
         ],
-        bump = params.client_state_bump,
-        constraint = state.load()?.vrf ==  vrf.key()
+        bump = state.load()?.bump,
+        has_one = vrf,
+        has_one = authority
     )]
     pub state: AccountLoader<'info, VrfClient>,
+    /// CHECK:
     #[account(signer)] // client authority needs to sign
     pub authority: AccountInfo<'info>,
+    /// CHECK:
+    #[account(constraint = switchboard_program.executable == true)]
     pub switchboard_program: AccountInfo<'info>,
-    #[account(mut)]
+    /// CHECK: Will be checked in the CPI instruction
+    #[account(mut, constraint = vrf.owner.as_ref() == switchboard_program.key().as_ref())]
     pub vrf: AccountInfo<'info>,
-    #[account(mut)]
+    /// CHECK: Will be checked in the CPI instruction
+    #[account(mut, constraint = oracle_queue.owner.as_ref() == switchboard_program.key().as_ref())]
     pub oracle_queue: AccountInfo<'info>,
-    pub queue_authority: AccountInfo<'info>,
+    /// CHECK: Will be checked in the CPI instruction
+    pub queue_authority: UncheckedAccount<'info>,
+    /// CHECK: Will be checked in the CPI instruction
+    #[account(constraint = data_buffer.owner.as_ref() == switchboard_program.key().as_ref())]
     pub data_buffer: AccountInfo<'info>,
-    #[account(mut)]
+    /// CHECK: Will be checked in the CPI instruction
+    #[account(mut, constraint = permission.owner.as_ref() == switchboard_program.key().as_ref())]
     pub permission: AccountInfo<'info>,
     #[account(mut, constraint = escrow.owner == program_state.key())]
     pub escrow: Account<'info, TokenAccount>,
     #[account(mut, constraint = payer_wallet.owner == payer_authority.key())]
     pub payer_wallet: Account<'info, TokenAccount>,
+    /// CHECK:
     #[account(signer)]
     pub payer_authority: AccountInfo<'info>,
+    /// CHECK:
     #[account(address = solana_program::sysvar::recent_blockhashes::ID)]
     pub recent_blockhashes: AccountInfo<'info>,
+    /// CHECK: Will be checked in the CPI instruction
+    #[account(constraint = program_state.owner.as_ref() == switchboard_program.key().as_ref())]
     pub program_state: AccountInfo<'info>,
     #[account(address = anchor_spl::token::ID)]
-    pub token_program: AccountInfo<'info>,
+    pub token_program: Program<'info, Token>,
 }
 
 #[derive(Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct RequestResultParams {
-    pub client_state_bump: u8,
     pub permission_bump: u8,
     pub switchboard_state_bump: u8,
 }
@@ -53,6 +67,10 @@ impl RequestResult<'_> {
     }
 
     pub fn actuate(ctx: &Context<Self>, params: &RequestResultParams) -> Result<()> {
+        let client_state = ctx.accounts.state.load()?;
+        let bump = client_state.bump.clone();
+        drop(client_state);
+
         let switchboard_program = ctx.accounts.switchboard_program.to_account_info();
 
         let vrf_request_randomness = VrfRequestRandomness {
@@ -72,11 +90,16 @@ impl RequestResult<'_> {
 
         let vrf_key = ctx.accounts.vrf.key.clone();
         let authority_key = ctx.accounts.authority.key.clone();
+
+        msg!("bump: {}", bump);
+        msg!("authority: {}", authority_key);
+        msg!("vrf: {}", vrf_key);
+
         let state_seeds: &[&[&[u8]]] = &[&[
             &STATE_SEED,
             vrf_key.as_ref(),
             authority_key.as_ref(),
-            &[params.client_state_bump],
+            &[bump],
         ]];
         msg!("requesting randomness");
         vrf_request_randomness.invoke_signed(

@@ -16,17 +16,19 @@ pub struct InitState<'info> {
         bump,
     )]
     pub state: AccountLoader<'info, VrfClient>,
+    /// CHECK:
     pub authority: AccountInfo<'info>,
+    /// CHECK:
     #[account(mut, signer)]
     pub payer: AccountInfo<'info>,
+    /// CHECK:
     pub vrf: AccountInfo<'info>,
     #[account(address = solana_program::system_program::ID)]
-    pub system_program: AccountInfo<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct InitStateParams {
-    pub client_state_bump: u8,
     pub max_result: u64,
 }
 
@@ -58,6 +60,7 @@ impl InitState<'_> {
         msg!("Setting VRF Account");
         state.vrf = ctx.accounts.vrf.key.clone();
         state.authority = ctx.accounts.authority.key.clone();
+        state.bump = ctx.bumps.get("state").unwrap().clone();
 
         Ok(())
     }

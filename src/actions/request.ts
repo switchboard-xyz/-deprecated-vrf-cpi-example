@@ -46,6 +46,17 @@ export async function RequestRandomnessCPI(argv: any): Promise<void> {
   }
 
   const state = await vrfClient.loadData();
+  console.log(
+    JSON.stringify(
+      {
+        bump: state.bump,
+        authority: state.authority.toString(),
+        vrf: state.vrf.toString(),
+      },
+      undefined,
+      2
+    )
+  );
 
   const vrf = await vrfAccount.loadData();
   const queueAccount = new OracleQueueAccount({
@@ -62,7 +73,7 @@ export async function RequestRandomnessCPI(argv: any): Promise<void> {
     switchboardProgram,
     queueAuthority,
     queueAccount.publicKey,
-    state.vrf
+    vrfAccount.publicKey
   );
   try {
     await permissionAccount.loadData();
@@ -79,7 +90,6 @@ export async function RequestRandomnessCPI(argv: any): Promise<void> {
 
   const requestTxn = await clientProgram.rpc.requestResult(
     {
-      clientStateBump: vrfBump,
       switchboardStateBump: programStateBump,
       permissionBump,
     },

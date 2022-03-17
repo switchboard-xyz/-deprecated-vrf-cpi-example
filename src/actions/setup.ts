@@ -43,10 +43,17 @@ export async function setupOracleQueue(argv: any): Promise<void> {
     minStake: new anchor.BN(0),
     authority: payerKeypair.publicKey,
     // Change to true to skip oraclePermission.set step
-    unpermissionedVrf: false,
+    unpermissionedVrf: true,
+    unpermissionedFeeds: true,
     queueSize: 50,
   });
   console.log(toAccountString("Oracle Queue", queueAccount.publicKey));
+
+  // HACK until API fix
+  const setVrfPermissions = await queueAccount.setVrfSettings({
+    unpermissionedVrf: true,
+    authority: payerKeypair,
+  });
 
   // Oracle
   const oracleAccount = await OracleAccount.create(program, {
