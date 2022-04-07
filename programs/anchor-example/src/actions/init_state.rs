@@ -13,6 +13,7 @@ pub struct InitState<'info> {
             authority.key().as_ref(),
         ],
         payer = payer,
+        space = 8 + 8,
         bump,
     )]
     pub state: AccountLoader<'info, VrfClient>,
