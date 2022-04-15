@@ -4,7 +4,7 @@ pub use actions::*;
 pub use anchor_lang::prelude::*;
 use anchor_spl::token::TokenAccount;
 
-declare_id!("FL6C2gLaDqSgeKmVrL7E75rqJhdnn9bvFp7GiQmy1Yrn");
+declare_id!("6MLk7G54uHZ7JuzNxpBAVENANrgM9BZ51pKkzGwPYBCE");
 
 const MAX_RESULT: u64 = u64::MAX;
 
@@ -30,8 +30,8 @@ pub mod anchor_vrf_example {
     }
 }
 
-#[repr(packed)]
 #[account(zero_copy)]
+#[derive(AnchorDeserialize, Debug)]
 pub struct VrfClient {
     pub bump: u8,
     pub max_result: u64,

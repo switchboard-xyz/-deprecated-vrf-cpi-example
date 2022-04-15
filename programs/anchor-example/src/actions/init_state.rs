@@ -1,6 +1,7 @@
 use crate::*;
 use anchor_lang::prelude::*;
 pub use switchboard_v2::VrfAccountData;
+use std::mem;
 
 #[derive(Accounts)]
 #[instruction(params: InitStateParams)]
@@ -13,7 +14,7 @@ pub struct InitState<'info> {
             authority.key().as_ref(),
         ],
         payer = payer,
-        space = 8 + 8,
+        space = 8 + mem::size_of::<VrfClient>(),
         bump,
     )]
     pub state: AccountLoader<'info, VrfClient>,
@@ -50,18 +51,32 @@ impl InitState<'_> {
 
     pub fn actuate(ctx: &Context<Self>, params: &InitStateParams) -> Result<()> {
         msg!("Actuate init");
-        let state = &mut ctx.accounts.state.load_init()?;
-        msg!("Setting max result");
+        let mut state = ctx.accounts.state.load_init()?;
+        // *state = VrfClient::default();
+        
+        msg!("Setting VrfClient state");
         if params.max_result == 0 {
-            state.max_result = MAX_RESULT;
+            *state = VrfClient {
+                bump: ctx.bumps.get("state").unwrap().clone(),
+                last_timestamp: 0,
+                result: 0,
+                result_buffer: [0u8; 32],
+                max_result: MAX_RESULT,
+                authority: ctx.accounts.authority.key.clone(),
+                vrf: ctx.accounts.vrf.key.clone()
+                
+            };
         } else {
-            state.max_result = params.max_result;
+            *state = VrfClient {
+                bump: ctx.bumps.get("state").unwrap().clone(),
+                last_timestamp: 0,
+                result: 0,
+                result_buffer: [0u8; 32],
+                max_result: params.max_result,
+                authority: ctx.accounts.authority.key.clone(),
+                vrf: ctx.accounts.vrf.key.clone()
+            };
         }
-
-        msg!("Setting VRF Account");
-        state.vrf = ctx.accounts.vrf.key.clone();
-        state.authority = ctx.accounts.authority.key.clone();
-        state.bump = ctx.bumps.get("state").unwrap().clone();
 
         Ok(())
     }

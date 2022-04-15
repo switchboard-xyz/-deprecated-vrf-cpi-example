@@ -1,5 +1,5 @@
 [programs.localnet]
-anchor_vrf_example = "FL6C2gLaDqSgeKmVrL7E75rqJhdnn9bvFp7GiQmy1Yrn"
+anchor_vrf_example = "6MLk7G54uHZ7JuzNxpBAVENANrgM9BZ51pKkzGwPYBCE"
 
 [registry]
 url = "https://anchor.projectserum.com"
