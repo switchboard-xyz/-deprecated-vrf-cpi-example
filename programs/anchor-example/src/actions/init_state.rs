@@ -35,7 +35,7 @@ pub struct InitStateParams {
 }
 
 impl InitState<'_> {
-    pub fn validate(&self, ctx: &Context<Self>, params: &InitStateParams) -> Result<()> {
+    pub fn validate(&self, _ctx: &Context<Self>, params: &InitStateParams) -> Result<()> {
         msg!("Validate init");
         if params.max_result > MAX_RESULT {
             return Err(error!(VrfErrorCode::MaxResultExceedsMaximum));
