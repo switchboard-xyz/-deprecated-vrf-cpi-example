@@ -19,9 +19,9 @@ pub mod anchor_vrf_example {
         InitState::actuate(&ctx, &params)
     }
 
-    #[access_control(ctx.accounts.validate(&ctx, &params))]
-    pub fn update_result(ctx: Context<UpdateResult>, params: UpdateResultParams) -> Result<()> {
-        UpdateResult::actuate(&ctx, &params)
+    #[access_control(ctx.accounts.validate(&ctx))]
+    pub fn update_result(ctx: Context<UpdateResult>) -> Result<()> {
+        UpdateResult::actuate(&ctx)
     }
 
     #[access_control(ctx.accounts.validate(&ctx, &params))]

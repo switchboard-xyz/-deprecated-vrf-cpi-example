@@ -4,7 +4,6 @@ use anchor_lang::solana_program::clock;
 pub use switchboard_v2::VrfAccountData;
 
 #[derive(Accounts)]
-#[instruction(params: UpdateResultParams)]
 pub struct UpdateResult<'info> {
     #[account(mut)]
     pub state: AccountLoader<'info, VrfClient>,
@@ -12,15 +11,12 @@ pub struct UpdateResult<'info> {
     pub vrf: AccountInfo<'info>,
 }
 
-#[derive(Clone, AnchorSerialize, AnchorDeserialize)]
-pub struct UpdateResultParams {}
-
 impl UpdateResult<'_> {
-    pub fn validate(&self, _ctx: &Context<Self>, _params: &UpdateResultParams) -> Result<()> {
+    pub fn validate(&self, _ctx: &Context<Self>) -> Result<()> {
         Ok(())
     }
 
-    pub fn actuate(ctx: &Context<Self>, _params: &UpdateResultParams) -> Result<()> {
+    pub fn actuate(ctx: &Context<Self>) -> Result<()> {
         let vrf_account_info = &ctx.accounts.vrf;
         let vrf = VrfAccountData::new(vrf_account_info)?;
         let result_buffer = vrf.get_result()?;

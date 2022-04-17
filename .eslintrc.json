@@ -25,6 +25,7 @@
     "unicorn/filename-case": "off",
     "unicorn/prefer-node-protocol": "off",
     "no-process-exit": "off",
-    "unicorn/no-await-expression-member": "off"
+    "unicorn/no-await-expression-member": "off",
+    "unicorn/prevent-abbreviations": "off"
   }
 }

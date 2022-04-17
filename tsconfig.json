@@ -35,6 +35,6 @@
     "allowSyntheticDefaultImports": true
     // "rootDir": "src"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "tests/**/*", "solita.ts"],
   "exclude": ["node_modules/**/", "bin", "migrations"]
 }
