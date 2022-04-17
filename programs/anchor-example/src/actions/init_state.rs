@@ -41,41 +41,33 @@ impl InitState<'_> {
             return Err(error!(VrfErrorCode::MaxResultExceedsMaximum));
         }
 
-        msg!("Checking VRF Account");
-        let vrf_account_info = &ctx.accounts.vrf;
-        let _vrf = VrfAccountData::new(vrf_account_info)
-            .map_err(|_| VrfErrorCode::InvalidSwitchboardVrfAccount)?;
-
         Ok(())
     }
 
     pub fn actuate(ctx: &Context<Self>, params: &InitStateParams) -> Result<()> {
         msg!("Actuate init");
-        let mut state = ctx.accounts.state.load_init()?;
-        // *state = VrfClient::default();
-        
+
+        msg!("Checking VRF Account");
+        let vrf_account_info = &ctx.accounts.vrf;
+        let vrf = VrfAccountData::new(vrf_account_info)
+            .map_err(|_| VrfErrorCode::InvalidSwitchboardVrfAccount)?;
+        // client state needs to be authority in order to sign request randomness instruction
+        if vrf.authority != ctx.accounts.state.key() {
+            return Err(error!(VrfErrorCode::InvalidSwitchboardVrfAccount));
+        }
+
         msg!("Setting VrfClient state");
+        let mut state = ctx.accounts.state.load_init()?;
+        *state = VrfClient::default();
+        state.bump = ctx.bumps.get("state").unwrap().clone();
+        state.authority =  ctx.accounts.authority.key.clone();
+        state.vrf = ctx.accounts.vrf.key.clone();
+        
+        msg!("Setting VrfClient max_result");
         if params.max_result == 0 {
-            *state = VrfClient {
-                bump: ctx.bumps.get("state").unwrap().clone(),
-                last_timestamp: 0,
-                result: 0,
-                result_buffer: [0u8; 32],
-                max_result: MAX_RESULT,
-                authority: ctx.accounts.authority.key.clone(),
-                vrf: ctx.accounts.vrf.key.clone()
-                
-            };
+            state.max_result = MAX_RESULT;
         } else {
-            *state = VrfClient {
-                bump: ctx.bumps.get("state").unwrap().clone(),
-                last_timestamp: 0,
-                result: 0,
-                result_buffer: [0u8; 32],
-                max_result: params.max_result,
-                authority: ctx.accounts.authority.key.clone(),
-                vrf: ctx.accounts.vrf.key.clone()
-            };
+            state.max_result = params.max_result;
         }
 
         Ok(())

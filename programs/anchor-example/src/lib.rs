@@ -30,6 +30,7 @@ pub mod anchor_vrf_example {
     }
 }
 
+#[repr(packed)]
 #[account(zero_copy)]
 #[derive(AnchorDeserialize, Debug)]
 pub struct VrfClient {

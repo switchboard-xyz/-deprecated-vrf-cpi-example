@@ -51,8 +51,6 @@ export async function createVrfAccount(argv: any): Promise<void> {
     await clientAccount.loadData();
   } catch {}
 
-  console.log(`client bump: ${clientBump}`);
-
   console.log(chalk.yellow("######## CREATE VRF ACCOUNT ########"));
 
   const queue = new OracleQueueAccount({

@@ -53,7 +53,7 @@ This will output a docker command to run in a separate shell in order to start t
 Next we'll create our VRF Account to hold the randomness result that has a callback to the clientProgram's `UpdateResult` instruction, which will parse the result buffer and set the state to a value of [0 to `maxResult`). Make sure to subsitute [QUEUEKEY] for your newly created queue from the previous command.
 
 ```bash
-ts-node src create [QUEUEKEY] --payer secrets/payer-keypair.json --maxGuess 123456789
+ts-node src create [QUEUEKEY] --payer secrets/payer-keypair.json --maxResult 123456789
 ```
 
 **NOTE:** This will output 3 commands to watch the VRF Account and request a new randomness value. Run each in a separate shell to monitor the on-chain changes of your account in real time.
@@ -63,7 +63,7 @@ ts-node src create [QUEUEKEY] --payer secrets/payer-keypair.json --maxGuess 1234
 You may wish to use Switchboard's permissionless devnet queue to avoid needing to install docker. Substitute `F8ce7MsckeZAbAGmxjJNetxYXQa9mKr9nnrC3qKubyYy` for [QUEUEKEY].
 
 ```bash
-ts-node src create [QUEUEKEY] --payer secrets/payer-keypair.json --maxGuess 123456789
+ts-node src create [QUEUEKEY] --payer secrets/payer-keypair.json --maxResult 123456789
 ```
 
 **NOTE:** This will output 3 commands to watch the VRF Account and request a new randomness value. Run each in a separate shell to monitor the on-chain changes of your account in real time.
