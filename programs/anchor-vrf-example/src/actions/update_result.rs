@@ -17,6 +17,13 @@ impl UpdateResult<'_> {
     }
 
     pub fn actuate(ctx: &Context<Self>) -> Result<()> {
+        let clock = clock::Clock::get().unwrap();
+
+        emit!(VrfClientInvoked {
+            vrf_client: ctx.accounts.state.key(),
+            timestamp: clock.unix_timestamp,
+        });
+
         let vrf_account_info = &ctx.accounts.vrf;
         let vrf = VrfAccountData::new(vrf_account_info)?;
         let result_buffer = vrf.get_result()?;
@@ -41,13 +48,13 @@ impl UpdateResult<'_> {
         if state.result != result {
             state.result_buffer = result_buffer;
             state.result = result;
-            state.last_timestamp = clock::Clock::get().unwrap().unix_timestamp;
+            state.last_timestamp = clock.unix_timestamp;
 
             emit!(VrfClientResultUpdated {
                 vrf_client: ctx.accounts.state.key(),
                 result: state.result,
                 result_buffer: result_buffer,
-                timestamp: clock::Clock::get().unwrap().unix_timestamp,
+                timestamp: clock.unix_timestamp,
             });
         }
 

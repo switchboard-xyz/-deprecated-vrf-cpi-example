@@ -8,6 +8,7 @@
     "sbv2-vrf": "node ./bin/index.js"
   },
   "scripts": {
+    "generate:api": "ts-node solita",
     "setup:authority": "run-s create:authority airdrop:authority",
     "setup:switchboard": "sbv2 localnet:env --keypair secrets/payer-keypair.json",
     "create:authority": "shx find secrets/payer-keypair.json || solana-keygen new -s --no-bip39-passphrase --outfile secrets/payer-keypair.json",

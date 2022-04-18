@@ -49,6 +49,19 @@ impl Default for VrfClient {
 }
 
 #[event]
+pub struct RequestingRandomness {
+    pub vrf_client: Pubkey,
+    pub max_result: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct VrfClientInvoked {
+    pub vrf_client: Pubkey,
+    pub timestamp: i64,
+}
+
+#[event]
 pub struct VrfClientResultUpdated {
     pub vrf_client: Pubkey,
     pub result: u128,

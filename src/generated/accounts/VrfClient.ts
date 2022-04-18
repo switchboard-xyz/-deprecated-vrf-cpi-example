@@ -46,7 +46,7 @@ export class VrfClient implements VrfClientArgs {
   /**
    * Creates a {@link VrfClient} instance from the provided args.
    */
-  static fromArgs(args: VrfClientArgs): VrfClient {
+  static fromArgs(args: VrfClientArgs) {
     return new VrfClient(
       args.bump,
       args.maxResult,
