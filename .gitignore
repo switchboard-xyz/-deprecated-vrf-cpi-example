@@ -22,3 +22,8 @@ switchboard_v2.json
 
 ./docker-compose.yml
 ./Anchor.toml
+
+switchboard.env
+start-local-validator.sh
+start-oracle.sh
+switchboard.json

@@ -35,13 +35,20 @@ impl UpdateResult<'_> {
         msg!("Result buffer is {:?}", result_buffer);
         let value: &[u128] = bytemuck::cast_slice(&result_buffer[..]);
         msg!("u128 buffer {:?}", value);
-        let result = value[0] % max_result as u128;
-        msg!("Current VRF Value [0 - {}) = {}!", max_result, result);
+        let result = value[0] % max_result as u128 + 1;
+        msg!("Current VRF Value [1 - {}) = {}!", max_result, result);
 
         if state.result != result {
             state.result_buffer = result_buffer;
             state.result = result;
             state.last_timestamp = clock::Clock::get().unwrap().unix_timestamp;
+
+            emit!(VrfClientResultUpdated {
+                vrf_client: ctx.accounts.state.key(),
+                result: state.result,
+                result_buffer: result_buffer,
+                timestamp: clock::Clock::get().unwrap().unix_timestamp,
+            });
         }
 
         Ok(())

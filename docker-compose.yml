@@ -7,11 +7,12 @@ services:
     secrets:
       - PAYER_SECRETS
     environment:
+      - VERBOSE=1
       - LIVE=1
-      - CLUSTER=${CLUSTER}
+      - CLUSTER=localnet
       - HEARTBEAT_INTERVAL=15 # Seconds
-      - ORACLE_KEY=${ORACLE_KEY}
-      - RPC_URL=${RPC_URL}
+      - ORACLE_KEY=${ORACLE}
+      # - RPC_URL=${RPC_URL}
 secrets:
   PAYER_SECRETS:
     file: ${PAYER_KEYPAIR}

@@ -48,6 +48,14 @@ impl Default for VrfClient {
     }
 }
 
+#[event]
+pub struct VrfClientResultUpdated {
+    pub vrf_client: Pubkey,
+    pub result: u128,
+    pub result_buffer: [u8; 32],
+    pub timestamp: i64,
+}
+
 #[error_code]
 #[derive(Eq, PartialEq)]
 pub enum VrfErrorCode {
