@@ -2,7 +2,7 @@
 
 Example repo
 
-## Devnet Setup
+## Setup
 
 ```
 npm i
@@ -16,22 +16,35 @@ solana-keygen pubkey target/deploy/anchor_vrf_example-keypair.json
 
 Note the program ID.
 
-In the following files, replace the program ID from above:]
+In the following files, replace the program ID from above:
 
 - `programs/anchor-vrf-example/src/lib.rs`
 - `Anchor.toml`
 - `solita.ts`
 
-Rebuild and deploy the program
+Rebuild the program `anchor build`.
+
+## Devnet Testing
+
+**NOTE:** Need to re-write test so use switchboard permissionless devnet queue
+
+In `Anchor.toml`, set the cluster to devnet.
+
+```toml
+[provider]
+cluster = "devnet"
+wallet = "secrets/payer-keypair.json"
+```
+
+Then deploy and run the tests.
 
 ```
-anchor build
-anchor deploy
+anchor test
 ```
 
 ## Localnet Testing
 
-In `Anchor.toml`, change the cluster to localnet.
+In `Anchor.toml`, set the cluster to localnet.
 
 ```toml
 [provider]
@@ -62,6 +75,5 @@ CLUSTER=localnet ./start-oracle.sh
 Run the anchor test using the already running localnet validator
 
 ```
-anchor build && anchor deploy
 anchor test --skip-local-validator
 ```
