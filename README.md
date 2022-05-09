@@ -24,24 +24,6 @@ In the following files, replace the program ID from above:
 
 Rebuild the program `anchor build`.
 
-## Devnet Testing
-
-**NOTE:** Need to re-write test so use switchboard permissionless devnet queue
-
-In `Anchor.toml`, set the cluster to devnet.
-
-```toml
-[provider]
-cluster = "devnet"
-wallet = "secrets/payer-keypair.json"
-```
-
-Then deploy and run the tests.
-
-```
-anchor test
-```
-
 ## Localnet Testing
 
 In `Anchor.toml`, set the cluster to localnet.
@@ -69,7 +51,7 @@ In a new shell, start the local Switchboard oracle
 
 ```
 chmod +x ./start-oracle.sh
-CLUSTER=localnet ./start-oracle.sh
+SBV2_ORACLE_VERSION=dev-v2-5-3-22 ./start-oracle.sh
 ```
 
 Run the anchor test using the already running localnet validator

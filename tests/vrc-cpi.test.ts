@@ -22,13 +22,16 @@ import { promiseWithTimeout } from "./test-utils";
 const expect = chai.expect;
 
 describe("vrfClient test", async () => {
-  anchor.setProvider(anchor.Provider.env());
+  anchor.setProvider(anchor.AnchorProvider.env());
 
   const vrfClientProgram = anchor.workspace
     .AnchorVrfExample as anchor.Program<AnchorVrfExample>;
 
   const payer = Keypair.fromSecretKey(
-    (vrfClientProgram.provider.wallet as anchor.Wallet).payer.secretKey
+    (
+      (vrfClientProgram.provider as anchor.AnchorProvider)
+        .wallet as anchor.Wallet
+    ).payer.secretKey
   );
 
   let switchboard: SwitchboardTestContext;

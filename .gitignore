@@ -27,3 +27,4 @@ switchboard.env
 start-local-validator.sh
 start-oracle.sh
 switchboard.json
+docker-compose.switchboard.yml
