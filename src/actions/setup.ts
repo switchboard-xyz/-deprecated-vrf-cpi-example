@@ -1,4 +1,5 @@
 import * as anchor from "@project-serum/anchor";
+import * as spl from "@solana/spl-token";
 import {
   OracleAccount,
   OracleQueueAccount,
@@ -46,6 +47,7 @@ export async function setupOracleQueue(argv: any): Promise<void> {
     unpermissionedVrf: false,
     unpermissionedFeeds: false,
     queueSize: 50,
+    mint: spl.NATIVE_MINT,
   });
   console.log(toAccountString("Oracle Queue", queueAccount.publicKey));
 
@@ -71,7 +73,7 @@ export async function setupOracleQueue(argv: any): Promise<void> {
     enable: true,
   });
   console.log(toAccountString(`  Permission`, oraclePermission.publicKey));
-  await oracleAccount.heartbeat();
+  await oracleAccount.heartbeat(payerKeypair);
 
   console.log(chalk.green("\u2714 Switchboard setup complete"));
 

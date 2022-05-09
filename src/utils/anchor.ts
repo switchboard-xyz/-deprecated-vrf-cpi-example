@@ -31,7 +31,7 @@ export async function loadSwitchboardProgram(
     commitment: "processed",
   });
   const wallet = new anchor.Wallet(payer);
-  const provider = new anchor.Provider(connection, wallet, {
+  const provider = new anchor.AnchorProvider(connection, wallet, {
     commitment: "processed",
     preflightCommitment: "processed",
   });
@@ -83,7 +83,7 @@ export async function loadVrfClientProgram(
   );
 
   const wallet = new anchor.Wallet(payer);
-  const provider = new anchor.Provider(connection, wallet, {
+  const provider = new anchor.AnchorProvider(connection, wallet, {
     commitment: "confirmed",
   });
 
