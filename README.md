@@ -1,3 +1,9 @@
+:bangbang: | A simplified example can be found in the Switchboard V2 monorepo. [https://github.com/switchboard-xyz/switchboard-v2/tree/main/programs/anchor-vrf-parser](https://github.com/switchboard-xyz/switchboard-v2/tree/main/programs/anchor-vrf-parser)
+:---: | :---
+
+
+
+
 # Switchboard V2 VRF Example
 
 An example repo demonstrating the usage of the Switchboard V2 VRF invoking an example program when a new randomness request is fulfilled.
