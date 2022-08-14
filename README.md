@@ -99,7 +99,7 @@ ts-node src request [VRFPUBKEY] --payer secrets/payer-keypair.json
 - [Watch Account](#Watch-Account)
 - [Benchmark](#Benchmark)
 
-**NOTE:** Each randomness request costs 0.1 wSOL. The following commands assume you use the same keypair, containing an active devnet Solana balance to pay for new accounts,
+**NOTE:** Each randomness request costs 0.002 wSOL. The following commands assume you use the same keypair, containing an active devnet Solana balance to pay for new accounts,
 
 ```bash
 solana-keygen new --no-bip39-passphrase --outfile secrets/payer-keypair.json
