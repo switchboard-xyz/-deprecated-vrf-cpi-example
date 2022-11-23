@@ -4,7 +4,7 @@ pub use actions::*;
 pub use anchor_lang::prelude::*;
 use anchor_spl::token::TokenAccount;
 
-declare_id!("6MLk7G54uHZ7JuzNxpBAVENANrgM9BZ51pKkzGwPYBCE");
+declare_id!("2v8zFrXxMpiiHSQyhPucWMFZKGWCWs2UaqhNFmbwZe4Q");
 
 const MAX_RESULT: u64 = u64::MAX;
 

@@ -1,17 +1,20 @@
 version: "3.3"
 services:
   oracle:
-    image: "switchboardlabs/node:dev-v2-5-3-22"
+    image: "docker.io/switchboardlabs/node:dev-v2-RC_11_23_22_01_32a"
     network_mode: host
     restart: always
     secrets:
       - PAYER_SECRETS
     environment:
       - LIVE=1
-      - CLUSTER=${CLUSTER}
+      - CHAIN=solana
+      - SOLANA_CLUSTER=devnet
+      - CLUSTER=devnet
       - HEARTBEAT_INTERVAL=15 # Seconds
       - ORACLE_KEY=${ORACLE_KEY}
       - RPC_URL=${RPC_URL}
+      - TASK_RUNNER_SOLANA_RPC=${RPC_URL}
 secrets:
   PAYER_SECRETS:
     file: ${PAYER_KEYPAIR}
