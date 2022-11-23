@@ -32,7 +32,10 @@ export async function setupOracleQueue(argv: any): Promise<void> {
   // Program State Account and token mint for payout rewards
   const [programStateAccount] = ProgramStateAccount.fromSeed(program);
   const switchTokenMint = await programStateAccount.getTokenMint();
-  const tokenAccount = await switchTokenMint.createAccount(
+  const tokenAccount = await spl.getOrCreateAssociatedTokenAccount(
+    program.provider.connection,
+    payerKeypair,
+    spl.NATIVE_MINT,
     payerKeypair.publicKey
   );
 

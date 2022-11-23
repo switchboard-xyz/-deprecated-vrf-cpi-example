@@ -83,10 +83,12 @@ export async function RequestRandomnessCPI(argv: any): Promise<void> {
     );
   }
   const switchTokenMint = await programStateAccount.getTokenMint();
-  const payerTokenAccount =
-    await switchTokenMint.getOrCreateAssociatedAccountInfo(
-      payerKeypair.publicKey
-    );
+  const payerTokenAccount = await spl.getOrCreateAssociatedTokenAccount(
+    switchboardProgram.provider.connection,
+    payerKeypair,
+    spl.NATIVE_MINT,
+    payerKeypair.publicKey
+  );
 
   const requestTxn = await clientProgram.rpc.requestResult(
     {

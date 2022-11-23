@@ -1,4 +1,5 @@
 import * as anchor from "@project-serum/anchor";
+import * as spl from "@solana/spl-token";
 import { AccountInfo, Context, PublicKey } from "@solana/web3.js";
 import {
   ProgramStateAccount,
@@ -24,16 +25,19 @@ export async function BenchmarkRpc(argv: any): Promise<void> {
 
   const [programStateAccount] = ProgramStateAccount.fromSeed(program);
   const switchTokenMint = await programStateAccount.getTokenMint();
-  const payerTokenAccount =
-    await switchTokenMint.getOrCreateAssociatedAccountInfo(
-      payerKeypair.publicKey
-    );
+  const psa = await programStateAccount.loadData();
+  const payerTokenAccount = await spl.getOrCreateAssociatedTokenAccount(
+    program.provider.connection,
+    payerKeypair,
+    spl.NATIVE_MINT,
+    payerKeypair.publicKey
+  );
   const balance = await program.provider.connection.getTokenAccountBalance(
     payerTokenAccount.address
   );
   if (!balance.value.uiAmount || balance.value.uiAmount < 0.1) {
     throw new Error(
-      `associated token account must have a balance greater than 0.1\nbalance ${balance.value.uiAmount}\ntokenAccount ${payerTokenAccount.address}\nmint ${switchTokenMint.publicKey}`
+      `associated token account must have a balance greater than 0.1\nbalance ${balance.value.uiAmount}\ntokenAccount ${payerTokenAccount.address}\nmint ${spl.NATIVE_MINT}`
     );
   }
 
