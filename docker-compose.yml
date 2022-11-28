@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   oracle:
-    image: "docker.io/switchboardlabs/node:dev-v2-RC_11_28_22_04_01a"
+    image: "docker.io/switchboardlabs/node:dev-v2-RC_11_23_22_01_32a"
     network_mode: host
     restart: always
     secrets:
