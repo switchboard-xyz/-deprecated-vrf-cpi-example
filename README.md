@@ -44,6 +44,7 @@ Next, rebuild the program with the updated ID and deploy the example program to 
 ```bash
 anchor build
 anchor deploy
+anchor idl init -f target/idl/anchor_vrf_example.json [PUBKEY]
 ```
 
 ### Setup Local Switchboard Queue
